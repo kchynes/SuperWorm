@@ -86,6 +86,7 @@ $(document).ready(function(){
 			printWormFact();
 			foodColor = "#06F";
 	        cutPercent = 0.3;
+            power = false;
 
 	        // Create Worm and Food
 	        createWorm();
@@ -117,18 +118,46 @@ $(document).ready(function(){
 
 		// Create food for worm
 		function createFood(num) {
+            var newx;
+            var newy;
+            var flag = true;
 	   		if(num == -1){
 	   			for(var i = 0; i < foodAmount; ++i)
+                {
+                    flag = true;
+                    while (flag)
+                    {
+                        flag = false;
+                        newx = Math.round(Math.random() * (w - wormWidth) / wormWidth);
+                        newy = Math.round(Math.random() * (h - wormWidth) / wormWidth);
+                        for (var k = 0; k < worm_body.length; k++)
+                        {
+                            if (newx == worm_body[k].x && newy == worm_body[k].y)
+                                flag = true;
+                        }
+                    }
 	   				food[i] = {
-	                	x: Math.round(Math.random() * (w - wormWidth) / wormWidth),
-	                	y: Math.round(Math.random() * (h - wormWidth) / wormWidth),
+	                	x: newx,
+	                	y: newy,
 	            	};
+                }
 	   		}
 	   		else{
-		        food[num] = {
-		                x: Math.round(Math.random() * (w - wormWidth) / wormWidth),
-		                y: Math.round(Math.random() * (h - wormWidth) / wormWidth),
-		            };
+                while (flag)
+                {
+                    flag = false;
+                    newx = Math.round(Math.random() * (w - wormWidth) / wormWidth);
+                    newy = Math.round(Math.random() * (h - wormWidth) / wormWidth);
+                    for (var k = 0; k < worm_body.length; k++)
+                    {
+                        if (newx == worm_body[k].x && newy == worm_body[k].y)
+                            flag = true;
+                    }
+                }
+                food[num] = {
+                    x: newx,
+                    y: newy,
+                };
 	        }
 		}// createFood()
 
