@@ -31,7 +31,7 @@ $(document).ready(function(){
 		var h = $("#canvas").height();
 
 		// Game Variables
-		var wormWidth = 10;
+		var wormWidth = 20;
 		var direction;
 		var foodAmount;
 		var food = [];
@@ -63,37 +63,41 @@ $(document).ready(function(){
 			"This theme song brought to you by the wonderful Sycamore Drive - City Sounds!",
 			"A worm will chew its nails when it's nervous.",
 			"Typically a worm loses job interviews 9 times out of 10 because of the economy.",
-			"If you place a worm on top of a cat, it will most likely die.");
+			"If you place a worm on top of a cat, it will most likely die.",
+			"Worms are notorious for coding themselves into a rip off Snake game.",
+			"Worms can be expensive... but they are not cheap either considering...");
 
 		// Worm Body
 		var worm_body;
 
 		// Game start
 		function init(){
-			direction = "down";
-			snakeColor = "white";
-			createWorm();
-			createFood(-1);
-
 			// Setup new game variables
+			direction = "down";
+			snakeColor = changeWormColor();
 			score = 0;
 			timer = 0;
-			foodAmount = 2;
+			foodAmount = 3;
 			wormCut = 0;
 			mult = 1;
 			streakNum = 0;
 			calcMult(0);
 			streak();
-			printFact();
+			printWormFact();
 			foodColor = "#06F";
 	        cutPercent = 0.3;
+
+	        // Create Worm and Food
+	        createWorm();
+			createFood(-1);
+
 			document.getElementById("timeText").value = timer;
 
 			if(typeof game_loop != "undefined")
 				clearInterval(game_loop);
 
 			// Game refreshes every 60 milliseconds
-			game_loop = setInterval(paint, 60);
+			game_loop = setInterval(paint, 70);
 		}// init()
 
 		init();
@@ -105,7 +109,7 @@ $(document).ready(function(){
 
 			for (var i = length -1; i >= 0; i--) {
 				worm_body.push({
-					x: 35,
+					x: 20,
 					y: i
 				});
 			}// for
@@ -114,14 +118,11 @@ $(document).ready(function(){
 		// Create food for worm
 		function createFood(num) {
 	   		if(num == -1){
-	   			food[0] = {
-	                x: Math.round(Math.random() * (w - wormWidth) / wormWidth),
-	                y: Math.round(Math.random() * (h - wormWidth) / wormWidth),
-	            };
-	            food[1] = {
-	                x: Math.round(Math.random() * (w - wormWidth) / wormWidth),
-	                y: Math.round(Math.random() * (h - wormWidth) / wormWidth),
-	            };
+	   			for(var i = 0; i < foodAmount; ++i)
+	   				food[i] = {
+	                	x: Math.round(Math.random() * (w - wormWidth) / wormWidth),
+	                	y: Math.round(Math.random() * (h - wormWidth) / wormWidth),
+	            	};
 	   		}
 	   		else{
 		        food[num] = {
@@ -167,7 +168,7 @@ $(document).ready(function(){
 			           		tail = worm_body.pop(); 
 			        	}
 				            wormCut = wormLength - worm_body.length;
-				            calcMult(wormCut);
+				            calcMult(5);
 				            tail.x = nx;
 				            tail.y = ny;
 
@@ -181,7 +182,7 @@ $(document).ready(function(){
 						x: nx,
 						y: ny
 					};
-					if(count > 1){
+					if(count > 3){
 						tail = worm_body.pop();
 
 						tail.x = nx;
@@ -231,7 +232,8 @@ $(document).ready(function(){
 		}// paintCell()
 
 
-		//CHeck to see if the worm has touched a wall or itself
+
+		//Check to see if the worm has touched a wall or itself
 		function checkCollision(x, y, array){
 			for (var i = 0; i < array.length; i++) {
             	if (array[i].x == x && array[i].y == y) return true;
@@ -240,8 +242,11 @@ $(document).ready(function(){
 		}// checkCollision()
 
 		//Calculates the multiplier earned by the player
-		function calcMult(wc){
-			mult+=wc;
+		function calcMult(scoreAddition){
+			mult+=scoreAddition;
+			if(mult > 1)
+				mult -= (mult%scoreAddition);
+
 			document.getElementById("multText").innerHTML ="x"+mult;
 		}// calcMult()
 
@@ -251,43 +256,57 @@ $(document).ready(function(){
 	        	document.getElementById("scoreText").value = score;
 		}// printScores()
 
+		// Sets Streak depending on the streak number
 		function streak(){
 			if(streakNum == 40){
-				document.getElementById("streak").innerHTML = "Worm Master !!!";
+				streakNotification(null, "Worm Master!!!", 0.3);
 				snakeColor = "yellow";
 				clearInterval(game_loop);
-				game_loop = setInterval(paint, 30);
+				game_loop = setInterval(paint, 45);
 			}
-			else if(streakNum == 30){
-				document.getElementById("streak").innerHTML = "Ultra  Combo ! ! !";
-				theme.volume = 0.3;
-				document.getElementById("uc").volume = 1.0;
-				document.getElementById("uc").play();
-				power = true;
-			}
-			else if(streakNum == 20){
-				document.getElementById("streak").innerHTML = "RAMPAGE ! ! !";
-				theme.volume = 0.3;
-				document.getElementById("ram").play();
-				power = true;
-			}
-			else if(streakNum == 10){
-				document.getElementById("streak").innerHTML = "Holy Shit ! ! !";
-				theme.volume = 0.3;
-				document.getElementById("holy").play();
-				power = true;
-			}
+			else if(streakNum == 30)
+				streakNotification("uc", "Ultra Combo!!!", 0.3);
+			else if(streakNum == 20)
+				streakNotification("ram", "RAMPAGE !!!", 0.3);
+			else if(streakNum == 10)
+				streakNotification("holy", "Holy Shit!!!", 0.3);
 			else
-				document.getElementById("streak").innerHTML = "Get Small!";
-
-
-			setTimeout(function(){theme.volume = 1.0;}, 6000);
+				streakNotification(null, "Get Small!", 0.0);
 		}// streak()
 
-		function printFact(){
+		// Displays the Notification and the appropriate sound clip
+		function streakNotification(id, msg, volume){
+
+			document.getElementById("streak").innerHTML = msg;
+
+			// If not default
+			if(id != null){
+				theme.volume = volume;
+				document.getElementById(id).volume = 1.0;
+				document.getElementById(id).play();
+				power = true;
+
+				// Reset Theme Volume after 6 seconds
+				setTimeout(function(){theme.volume = 1.0;}, 6000);
+			}
+		}// streakNotification()
+
+		// Prints a new Worm Fact
+		function printWormFact(){
 			var num = Math.floor((Math.random()*(factArray.length-1))+1);
 			document.getElementById("wFact").innerHTML = factArray[num];
 		}
+
+		function changeWormColor(){
+				var colorIndex = document.getElementById("wormColor").selectedIndex;
+				var wormColors = document.getElementById("wormColor").options;
+				if(colorIndex > 0)
+					return wormColor[colorIndex].text;
+				else 
+					return "white";
+		}
+		// Changes the Color of the Super Worm
+		$("#wormColor").change(function(){snakeColor = changeWormColor();});
 
 		// Keyboard controls
 		$(document).keydown(function(e) {
