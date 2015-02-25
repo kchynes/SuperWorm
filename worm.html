@@ -8,20 +8,21 @@
 <link rel="stylesheet" href="./styles/worm.css" type="text/css"/>
 </head>
 <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
-  <script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
-<script src="./scripts/worm.js" type="text/javascript"></script>
-<body>
+<script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
+<body onload="init()">
 	<div id="nav">
 		<ul>
 			<li class="logo">Super Worm</li>
+			<li>PAUSE = ESC</li>
 			<li>
-				<select id="wormColor">
-					<option>-- Select a Color --</option>
-					<option>White</option>
-					<option>red</option>
-					<option>Purple</option>
-					<option>Green</option>
-					<option>Cyan</option>
+				<select id="wormColor" onchange="onWormColorChange()">
+					<option>-- Select Theme --</option>
+					<option>Basic</option>
+					<option>Inverse</option>
+					<option>Magical</option>
+					<option>Groovy</option>
+					<option>Sunrise</option>
+					<option>Sunset</option>
 				</select>
 			</li>
 			<li style="text-align:right;">HIGHSCORE:</li>
@@ -34,6 +35,8 @@
 	</audio>
 	<div id="center">
 		<p id="wFact"></p>
+		<!-- Temporary Location of Volume Contorl -->
+		<div><img id="volumeControl" src="./assets/volume_on.png" title="Volume ON/OFF" alt="Volume ON/OFF" onclick="onVolumeControlClick()" /></div>
 		<canvas id="canvas" width="700" height="500"></canvas>
 		<div id="time">
 			<li id="timeText">0</li>
@@ -53,6 +56,10 @@
 	<audio id="cant">
 	  <source src="./assets/cantStop.mp3" type="audio/mpeg">Your browser does not support the audio element.
 	</audio>
-	<footer>Version 1.3.1</footer>
+	<footer><p>Version 1.4</p>
+			<div>Royalty Free Song <a href="http://freemusicarchive.org/music/sycamore_drive/">SycamoreDrive</a></div>
+			<div>Icons made by <a href="http://www.freepik.com" title="Freepik">Freepik</a> from <a href="http://www.flaticon.com" title="Flaticon">www.flaticon.com</a>             is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0">CC BY 3.0</a></div></footer>
 </body>
+
+<script src="./scripts/worm.js" type="text/javascript"></script>
 </html>

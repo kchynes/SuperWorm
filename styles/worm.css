@@ -8,9 +8,7 @@ body {
 h2, h3 {
 	color: #06f;
 }
-a {
-	text-decoration: none;
-}
+
 canvas{
 	-webkit-border-radius: 5px;
 	-moz-border-radius: 5px;
@@ -45,7 +43,6 @@ footer li {
 	padding: 20px 5px;
 }
 footer a {
-	text-decoration: none;
 	color:#06f;
 }
 footer a:hover {
@@ -265,91 +262,4 @@ user-select: none;
 	margin:auto;
 	min-height: 300px;
 	vertical-align:middle;
-}
-
-/**************************
-		MOBILE
-***************************/
- @media (max-width: 1216px) {
-	.desktop {
-		display:none;
-	}
-	.mobile {
-		display:inherit;
-	}
-	body {
-		margin-top: 90px;
-	}
-	hr {
-		margin-top: 55px;
-		margin-bottom: 35px;
-	}
-	#wrapper {
-		width:95%;
-	}
-	#nav {
-		height: 50px;
-		margin: auto;
-		z-index: 2;
-		min-width:300px;
-	}
-	#nav h3 {
-		display: block;
-	}
-	#accordion {
-		background-color:#000;
-	}
-	#nav li {
-		list-style-type: none;
-		display: block;
-	}
-	#nav li:hover {
-		background-color: #06f;
-	}
-	.logo {
-		font-size: 1em;
-		margin-left: 20px;
-		margin-right: 20px;
-		font-weight: normal;
-	}
-	#intro {
-		min-width:180px;
-		padding: 30px;
-	}
-	img{
-		width: 200px;
-		height: 200px;
-	}
-	.center{
-		margin-right: auto;
-		margin-left:auto;
-	}
-	#content {
-		padding: 0px;
-	}
-	.textCol {
-		width: 80%;
-		clear: both;
-		float:none;
-		margin-left:auto;
-		margin-right:auto;
-		min-width:250px;
-		margin-bottom: 20px;
-	}
-	footer {
-		float: none;
-		margin-top: 30px;
-		margin-left:-50px;
-		font-size: 0.6em;	
-	}
-	footer li{
-		padding: 2px;
-	}
- @media (min-width: 1216px) {
-	.desktop {
-		display:inherit;
-	}
-	.mobile {
-		display:none;
-	}
 }
