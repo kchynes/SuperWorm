@@ -7,9 +7,19 @@ var h = canvas.height;
 // Worm Body
 var _WORM = []; 
 var _FOOD = [];
-var _WORM_COLOR = ["#ecf0f1", "#e74c3c", "#FFFFFF", "#e67e22", "#000000", "#d35400"];
-var _FOOD_COLOR = ["#3498db", "#2980b9", "#DB0A5B", "#27ae60", "#999999", "#f1c40f"];
-var _BG_COLOR = ["#000000", "#FFFFFF", "#1abc9c", "#2980b9", "#FFFFFF", "#f39c12"]
+
+// Theme Colors ordered by Worm Color, Food Color, and Background Color
+var _THEMES	=  [["#ecf0f1", "#3498db", "#000000"], // Basic
+				["#cbcad0", "#81c142", "#0f7d0d"], // Bone
+				["#e91a0a", "#ffffff", "#000000"], // Gears
+				["#505e82", "#a2b7dc", "#13263e"], // Halo
+				["#FFFFFF", "#DB0A5B", "#1abc9c"], // Hotline
+				["#e74c3c", "#2980b9", "#FFFFFF"], // Inverse
+				["#e91a0a", "#331f82", "#816830"], // Legend
+				["#000000", "#999999", "#FFFFFF"], // Retro
+				["#ffffff", "#0072bb", "#222b6c"], // Station
+				["#e67e22", "#27ae60", "#2980b9"], // Sunset
+				["#d35400", "#f1c40f", "#f39c12"]];// Sunrise
 
 // Config Object
 var _CONFIG = {
@@ -18,10 +28,10 @@ var _CONFIG = {
 	wormReduction: 0.3,
 	wormGrowth: 0,
 	wormGrowthLimit: 5,
-	wormColor: _WORM_COLOR[0],
+	wormColor: _THEMES[0][0],
 	foodAmount: 3,
-	foodColor: _FOOD_COLOR[0],
-	bgColor: _BG_COLOR[0],
+	foodColor: _THEMES[0][1],
+	bgColor: _THEMES[0][2],
 	multIncrement: 5,
 	multMessage: "GET SMALL!",
 	streakIncrement: 1,
@@ -70,7 +80,7 @@ function init(){
 
 	// Initialize Streak, Multiplier, Worm Color and Worm Facts
     calcMult(0)
-    changeWormColor();
+    changeTheme();
     printWormFact();
     streak(_CONFIG.streakIncrement);
 
@@ -369,22 +379,22 @@ function printWormFact(){
 	document.getElementById("wFact").innerHTML = factArray[num];
 }
 
-function changeWormColor(){
+function changeTheme(){
 		var colorIndex = document.getElementById("wormColor").selectedIndex-1;
 		if(colorIndex >= 0){
-			_CONFIG.wormColor = _WORM_COLOR[colorIndex];
-			_CONFIG.foodColor = _FOOD_COLOR[colorIndex];
-			_CONFIG.bgColor   = _BG_COLOR[colorIndex];
+			_CONFIG.wormColor = _THEMES[colorIndex][0];
+			_CONFIG.foodColor = _THEMES[colorIndex][1];
+			_CONFIG.bgColor   = _THEMES[colorIndex][2];
 		}
 		else {
-			_CONFIG.wormColor = _WORM_COLOR[0];
-			_CONFIG.foodColor = _FOOD_COLOR[0];
-			_CONFIG.bgColor   = _BG_COLOR[0];
+			_CONFIG.wormColor = _THEMES[0][0];
+			_CONFIG.foodColor = _THEMES[0][1];
+			_CONFIG.bgColor   = _THEMES[0][2];
 		}
 }
 
 function onWormColorChange(){
-	changeWormColor();
+	changeTheme();
 	document.getElementById("wormColor").blur();
 }
 
@@ -431,8 +441,8 @@ $(document).keydown(function(e) {
     		document.getElementById("streak").innerHTML = "Get Small!";
     		document.getElementById("cant").pause();
 
+    		changeTheme();
 			_CONFIG.multMessage = "Get Small!";
-    		_CONFIG.foodColor = "#06f"; 
     		_CONFIG.wormReduction = 0.3;
     		_CONFIG.theme.play();
     		clearInterval(colorChange);

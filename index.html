@@ -1,11 +1,13 @@
 <!DOCTYPE HTML>
 <html>
 <head>
-<meta charset="utf-8">
-<title>Super Worm</title>
-<link rel="stylesheet" href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" />
-<link href='http://fonts.googleapis.com/css?family=Bangers' rel='stylesheet' type='text/css'>
-<link rel="stylesheet" href="./styles/worm.css" type="text/css"/>
+	<meta charset="utf-8">
+	<title>Super Worm</title>
+	<link rel="stylesheet" href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" />
+	<link href='http://fonts.googleapis.com/css?family=Bangers' rel='stylesheet' type='text/css'>
+	<link rel="stylesheet" href="./styles/bootstrap-theme.css"/>
+	<link rel="stylesheet" href="./styles/bootstrap.css"/>
+	<link rel="stylesheet" href="./styles/worm.css" type="text/css"/>
 </head>
 <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
 <script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
@@ -18,11 +20,16 @@
 				<select id="wormColor" onchange="onWormColorChange()">
 					<option>-- Select Theme --</option>
 					<option>Basic</option>
-					<option>Inverse</option>
+					<option>Bone</option>
+					<option>Gears</option>
+					<option>Halo</option>
 					<option>Hotline</option>
-					<option>Groovy</option>
+					<option>Inverse</option>
+					<option>Legend</option>
 					<option>Retro</option>
+					<option>Station</option>
 					<option>Sunset</option>
+					<option>SunRise</option>
 				</select>
 			</li>
 			<li style="text-align:right;">HIGHSCORE:</li>
@@ -56,10 +63,32 @@
 	<audio id="cant">
 	  <source src="./assets/cantStop.mp3" type="audio/mpeg">Your browser does not support the audio element.
 	</audio>
-	<footer><p>Version 1.4</p>
+
+	<div class="modal fade" id="myModal">
+	  <div class="modal-dialog">
+	    <div class="modal-content">
+	      <div class="modal-header">
+	        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+	        <h4 class="modal-title">Modal title</h4>
+	      </div>
+	      <div class="modal-body">
+	        <p>One fine body&hellip;</p>
+	      </div>
+	      <div class="modal-footer">
+	        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+	        <button type="button" class="btn btn-primary">Save changes</button>
+	      </div>
+	    </div><!-- /.modal-content -->
+	  </div><!-- /.modal-dialog -->
+	</div><!-- /.modal -->
+
+	<footer><p>Version 1.4.2</p>
 			<div>Royalty Free Song <a href="http://freemusicarchive.org/music/sycamore_drive/">SycamoreDrive</a></div>
 			<div>Icons made by <a href="http://www.freepik.com" title="Freepik">Freepik</a> from <a href="http://www.flaticon.com" title="Flaticon">www.flaticon.com</a>             is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0">CC BY 3.0</a></div></footer>
 </body>
 
+<script src="./scripts/bootstrap.js" type="text/javascript"></script>
+<script src="./scripts/bootstrap-min.js" type="text/javascript"></script>
 <script src="./scripts/worm.js" type="text/javascript"></script>
+
 </html>

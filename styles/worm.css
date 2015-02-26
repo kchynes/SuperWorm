@@ -219,6 +219,9 @@ footer a:hover {
 	font-size: 1em;
 	height: 50px;
 }
+#nav ul{ /* Overrides bootstrap, will eventually move a bootstrap look */
+	margin: 12px auto !important;
+}
 #nav li {
 	padding: 15px;
 	display: inline;
@@ -242,6 +245,9 @@ footer a:hover {
 -moz-user-select: none;
 -ms-user-select: none;
 user-select: none;
+}
+#nav select{
+	color: #000;
 }
 
 #intro {
