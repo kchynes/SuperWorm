@@ -7,8 +7,9 @@ var h = canvas.height;
 // Worm Body
 var _WORM = []; 
 var _FOOD = [];
-var _WORM_COLOR = ["#ecf0f1", "#e74c3c", "#8e44ad", "#e67e22", "#27ae60", "#1abc9c"];
-var _FOOD_COLOR = ["#3498db", "#2980b9", "#ecf0f1", "#27ae60", "#e67e22", "#f1c40f"];
+var _WORM_COLOR = ["#ecf0f1", "#e74c3c", "#FFFFFF", "#e67e22", "#000000", "#d35400"];
+var _FOOD_COLOR = ["#3498db", "#2980b9", "#DB0A5B", "#27ae60", "#999999", "#f1c40f"];
+var _BG_COLOR = ["#000000", "#FFFFFF", "#1abc9c", "#2980b9", "#FFFFFF", "#f39c12"]
 
 // Config Object
 var _CONFIG = {
@@ -16,15 +17,17 @@ var _CONFIG = {
 	wormLength: 5,
 	wormReduction: 0.3,
 	wormGrowth: 0,
-	wormGrowthLimit: 3,
+	wormGrowthLimit: 5,
 	wormColor: _WORM_COLOR[0],
 	foodAmount: 3,
 	foodColor: _FOOD_COLOR[0],
+	bgColor: _BG_COLOR[0],
 	multIncrement: 5,
 	multMessage: "GET SMALL!",
 	streakIncrement: 1,
 	speed: 70,
 	seconds: 0,
+	pause: true,
 	timer: null,
 	game: null,
 	theme: document.getElementById("themeSong")
@@ -86,18 +89,19 @@ function init(){
 
 }
 
+// Ends Game and Resets Variables to Default
 function gameOver(){
 
 	clearInterval(_CONFIG.timer);
 	clearInterval(_CONFIG.game);
 
-	if(confirm("You died... Try again?")){
-		resetPlayer();
-		resetConfig();
-		_WORM = [];
-		_FOOD = [];
-		init();
-	}
+	resetPlayer();
+	resetConfig();
+	_WORM = [];
+	_FOOD = [];
+
+	beginRestartCountdown();
+	
 }
 
 // Puts the Player Object Back to default
@@ -112,6 +116,7 @@ function resetPlayer(){
 
 }
 
+// Resets Modifiable Config Settings
 function resetConfig(){
 	_CONFIG.wormReduction = 0.3;
 	_CONFIG.wormGrowth = 0;
@@ -119,6 +124,24 @@ function resetConfig(){
 	_CONFIG.seconds = 0;
 }
 
+function beginRestartCountdown(){
+	// Pausing isn't allowed
+	_CONFIG.pause = false;
+
+	// Begin Countdown from 3
+	var countdownTime = 3;
+	document.getElementById("streak").innerHTML = countdownTime+"...";
+	var countdown = setInterval(function(){
+			countdownTime--;	
+    		document.getElementById("streak").innerHTML = countdownTime+"...";
+    		
+    		if(countdownTime == 0){
+				clearInterval(countdown);
+				_CONFIG.pause = true;
+				init();
+    		}
+	},1000);
+}
 // Creates the worm
 function createWorm(){
 	for (var i = _CONFIG.wormLength -1; i >= 0; i--) {
@@ -174,7 +197,7 @@ function createFood(num) {
 function paint(){
 
 	// Paint Canvas
-	ctx.fillStyle = "black";
+	ctx.fillStyle = _CONFIG.bgColor;
 	ctx.fillRect(0, 0, w, h);
 	ctx.stokeStyle = "white";
 	ctx.strokeRect(0, 0, w, h);
@@ -351,10 +374,12 @@ function changeWormColor(){
 		if(colorIndex >= 0){
 			_CONFIG.wormColor = _WORM_COLOR[colorIndex];
 			_CONFIG.foodColor = _FOOD_COLOR[colorIndex];
+			_CONFIG.bgColor   = _BG_COLOR[colorIndex];
 		}
 		else {
 			_CONFIG.wormColor = _WORM_COLOR[0];
 			_CONFIG.foodColor = _FOOD_COLOR[0];
+			_CONFIG.bgColor   = _BG_COLOR[0];
 		}
 }
 
@@ -418,7 +443,7 @@ $(document).keydown(function(e) {
     }// Space Bar Key Press
     else if(key == 27){
     	// Pause
-    	if(_CONFIG.speed > 0){
+    	if(_CONFIG.speed > 0 && _CONFIG.pause){
 	    	_CONFIG.speed = 0;
 	    	_CONFIG.theme.pause();
 	    	clearInterval(_CONFIG.game);
@@ -428,7 +453,7 @@ $(document).keydown(function(e) {
 	    	document.getElementById("streak").innerHTML = "PAUSED!";
 	    }
 	    // Play
-	    else{
+	    else if(_CONFIG.speed == 0){
 	    	_CONFIG.speed = 70;
 	    	_CONFIG.theme.play();
 	    	_CONFIG.game  = setInterval(paint, _CONFIG.speed);
