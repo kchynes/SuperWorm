@@ -164,44 +164,42 @@ function createWorm(){
 
 // Create food for worm
 function createFood(num) {
-    var newx;
-    var newy;
-    var flag = true;
-		if(num == -1){
-			for(var i = 0; i < _CONFIG.foodAmount; ++i){
-	            flag = true;
-	            while (flag)
-	            {
-	                flag = false;
-	                newx = Math.round(Math.random() * (w - _CONFIG.wormWidth) / _CONFIG.wormWidth);
-	                newy = Math.round(Math.random() * (h - _CONFIG.wormWidth) / _CONFIG.wormWidth);
-	                for (var k = 0; k < _WORM.length; k++)
-	                {
-	                    if (newx == _WORM[k].x && newy == _WORM[k].y)
-	                        flag = true;
-	                }
-	            }
-				_FOOD[i] = {
-	            	x: newx,
-	            	y: newy,
-	        	};
-	        }
-		}else{
-	        while (flag){
-	            flag = false;
-	            newx = Math.round(Math.random() * (w - _CONFIG.wormWidth) / _CONFIG.wormWidth);
-	            newy = Math.round(Math.random() * (h - _CONFIG.wormWidth) / _CONFIG.wormWidth);
-	            for (var k = 0; k < _WORM.length; k++)
-	            {
-	                if (newx == _WORM[k].x && newy == _WORM[k].y)
-	                    flag = true;
-	            }
-	        }
-        _FOOD[num] = {
-            x: newx,
-            y: newy,
-        };
-    }
+
+		// Create all Food Pellets
+		if(num == -1)
+			for(var i = 0; i < _CONFIG.foodAmount; ++i)
+				createFoodLocation(i);
+		// Create a new Food Pellet
+		else
+			createFoodLocation(num);
+}
+
+// Finds a valid X and Y coordinate for a Food Pellet
+function createFoodLocation(index){
+
+	// Location flag
+	var invalidLocation = true;
+
+	while(invalidLocation){
+		// Assume the location will be Valid
+		invalidLocation = false;
+
+		// Get Random X and Y Coordinates
+		var foodX_pos = Math.round(Math.random() * (w - _CONFIG.wormWidth) / _CONFIG.wormWidth);
+		var foodY_pos = Math.round(Math.random() * (h - _CONFIG.wormWidth) / _CONFIG.wormWidth);
+
+		// Loop through each worm piece for collision
+		for(var i = 0; i < _WORM.length; i++)
+			if(foodX_pos == _WORM[i].x && foodY_pos == _WORM[i].y)
+				invalidLocation = true;
+	}
+
+	// Set Foods X and Y Coordinates
+	_FOOD[index] = {
+		x: foodX_pos,
+		y: foodY_pos
+	};
+
 }
 
 function paint(){
