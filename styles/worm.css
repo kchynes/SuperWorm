@@ -2,7 +2,7 @@
 		ELEMENTS
 ************************/
 body {
-	margin-top: 90px;
+	margin-top: 50px;
 	font-family:Arial, Helvetica, sans-serif;
 }
 h2, h3 {
@@ -70,33 +70,6 @@ footer a:hover {
 .blueText {
 	color:#06F;
 }
-.btn {
-	text-align:center;
-	text-decoration: none;
-	color: rgb(255, 255, 255);
-	padding: 10px 14px;
-	text-shadow: 0px -1px 0px rgba(30, 30, 30, 0.8);
-	-webkit-border-radius: 7px;
-	-moz-border-radius: 7px;
-	-ms-border-radius: 7px;
-	-o-border-radius: 7px;
-	border-radius: 7px;
-	background: rgb(6, 15, 206);
-	background: -moz-linear-gradient(90deg, rgb(6, 15, 206) 30%, rgb(6, 15, 255) 70%);
-	background: -webkit-linear-gradient(90deg, rgb(6, 15, 206) 30%, rgb(6, 15, 255) 70%);
-	background: -o-linear-gradient(90deg, rgb(6, 15, 206) 30%, rgb(6, 15, 255) 70%);
-	background: -ms-linear-gradient(90deg, rgb(6, 15, 206) 30%, rgb(6, 15, 255) 70%);
-	background: linear-gradient(0deg, rgb(6, 15, 206) 30%, rgb(6, 15, 255) 70%);
-	-webkit-box-shadow: 0px 2px 1px rgba(50, 50, 50, 0.75);
-	-moz-box-shadow:    0px 2px 1px rgba(50, 50, 50, 0.75);
-	-o-box-shadow:         0px 2px 1px rgba(50, 50, 50, 0.75);
-	-ms-box-shadow: 0px 2px 1px rgba(50, 50, 50, 0.75);
-	box-shadow:         0px 2px 1px rgba(50, 50, 50, 0.75);
-}
-.btn:hover {
-	opacity:0.9;
-	color: #CCC;
-}
 .polaroid {
 	padding: 5px;
 	border:solid #CCC 1px;
@@ -143,6 +116,13 @@ footer a:hover {
 	min-height: 230px;
 	float: left;
 }
+.centerControls{
+	text-align: center;
+	margin: 0px auto;
+}
+.SuperWormText{
+	font-family: Bangers !important;
+}
 
 /************************
 		IDS
@@ -186,16 +166,16 @@ footer a:hover {
 }
 #scoreText{
 	color: #09f;
-	background-color: #000;
+	background-color: #FFF;
 	border: none;
 	font-size: 1em;
+	font-weight: bold;
 	width: 100px;
 	text-align: center;
 }
 #wFact{
 	color: #09f;
 	font-style: italic;
-	margin-bottom: 30px;
 }
 #streak{
 	font-family: 'Bangers', cursive;

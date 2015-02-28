@@ -15,6 +15,7 @@ var _THEMES	=  [["#ecf0f1", "#3498db", "#000000"], // Basic
 				["#505e82", "#a2b7dc", "#13263e"], // Halo
 				["#FFFFFF", "#DB0A5B", "#1abc9c"], // Hotline
 				["#e74c3c", "#2980b9", "#FFFFFF"], // Inverse
+				["#FFFFFF", "#1abc9c", "#8e44ad"], // Jibbles
 				["#e91a0a", "#331f82", "#816830"], // Legend
 				["#000000", "#999999", "#FFFFFF"], // Retro
 				["#ffffff", "#0072bb", "#222b6c"], // Station
@@ -78,12 +79,6 @@ var factArray = new Array("A worm has no arms, but has elbows.",
 // Game start
 function init(){
 
-	// Initialize Streak, Multiplier, Worm Color and Worm Facts
-    calcMult(0)
-    changeTheme();
-    printWormFact();
-    streak(_CONFIG.streakIncrement);
-
     // Create Worm and Food
     createWorm();
 	createFood(-1);
@@ -110,8 +105,26 @@ function gameOver(){
 	_WORM = [];
 	_FOOD = [];
 
-	beginRestartCountdown();
+
+	displayStartMenu();
+	//beginRestartCountdown();
 	
+}
+
+// Display Start Menu
+function displayStartMenu(){
+
+	// Render Background and initialize Streak, Multiplier, Worm Color and Worm Facts Worm Fact
+    calcMult(0)
+    changeTheme();
+    printWormFact();
+	paintBackground();
+    streak(_CONFIG.streakIncrement);
+    
+	// Open Start Menu
+	$('#StartMenu').modal({backdrop: 'static'});
+
+	// Handle Difficulty Logic Here
 }
 
 // Puts the Player Object Back to default
@@ -135,6 +148,7 @@ function resetConfig(){
 }
 
 function beginRestartCountdown(){
+
 	// Pausing isn't allowed
 	_CONFIG.pause = false;
 
@@ -205,10 +219,7 @@ function createFoodLocation(index){
 function paint(){
 
 	// Paint Canvas
-	ctx.fillStyle = _CONFIG.bgColor;
-	ctx.fillRect(0, 0, w, h);
-	ctx.stokeStyle = "white";
-	ctx.strokeRect(0, 0, w, h);
+	paintBackground();
 
 	// Finds the head of the worm
 	var nx = _WORM[0].x;
@@ -277,6 +288,14 @@ function paint(){
 
 	printScores();
 }// paint()
+
+// Paints the Background of the Canvas
+function paintBackground(){
+	ctx.fillStyle = _CONFIG.bgColor;
+	ctx.fillRect(0, 0, w, h);
+	ctx.stokeStyle = "white";
+	ctx.strokeRect(0, 0, w, h);
+}
 
 //paints the cells of the worm and food
 function paintCell(x, y, z){
@@ -411,13 +430,13 @@ function onVolumeControlClick(){
 $(document).keydown(function(e) {
     var key = e.which;
     
-    if (key == 37 && _PLAYER.direction != "right") 
+    if ((key == 37 || key == 65) && _PLAYER.direction != "right") 
     	_PLAYER.direction = "left";
-    else if (key == 38 && _PLAYER.direction != "down") 
+    else if ((key == 38 || key == 87) && _PLAYER.direction != "down") 
     	_PLAYER.direction = "up";
-    else if (key == 39 && _PLAYER.direction != "left") 
+    else if ((key == 39 || key == 68) && _PLAYER.direction != "left") 
     	_PLAYER.direction = "right";
-    else if (key == 40 && _PLAYER.direction != "up") 
+    else if ((key == 40 || key == 83) && _PLAYER.direction != "up") 
     	_PLAYER.direction = "down";
     else if(key == 32 && _PLAYER.power) {
     	// Alternate Colors
@@ -473,5 +492,11 @@ $(document).keydown(function(e) {
 	    	// Change Message
 	    	document.getElementById("streak").innerHTML = _CONFIG.multMessage;
 	    }
+    }else if(key == 13){
+    	if($('#StartMenu').hasClass('in')){
+    		$('#StartMenu').modal('hide');
+    		init();
+    	}
+    	//beginRestartCountdown();
     }
 })
