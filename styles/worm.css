@@ -6,7 +6,7 @@ body {
 	font-family:Arial, Helvetica, sans-serif;
 }
 h2, h3 {
-	color: #06f;
+	color: #06C;
 }
 
 canvas{
@@ -26,17 +26,11 @@ select{
 	border-radius: 5px;
 	padding: 3px;
 }
-hr {
-	width: 95%;
-	height: 2px;
-	margin-top: 70px;
-	margin-bottom: 50px;
-}
 footer {
 	font-size:0.7em;
 	text-align:center;
 	margin-top: 60px;
-	color: #06F;
+	color: #06C;
 }
 footer li {
 	list-style-type: none;
@@ -44,7 +38,7 @@ footer li {
 	padding: 20px 5px;
 }
 footer a {
-	color:#06f;
+	color:#06C;
 }
 footer a:hover {
 	opacity: 0.8;
@@ -68,7 +62,7 @@ footer a:hover {
 	font-size: 1.1em;
 }
 .blueText {
-	color:#06F;
+	color:#06C;
 }
 .polaroid {
 	padding: 5px;
@@ -123,7 +117,9 @@ footer a:hover {
 .SuperWormText{
 	font-family: Bangers !important;
 }
-
+.SuperWormBtnWidth{
+	width: 100px;
+}
 /************************
 		IDS
 ************************/
@@ -144,7 +140,7 @@ footer a:hover {
 		font-family: 'Bangers', cursive;
 		border:none;
 		font-size: 2em;
-		color: #06F;
+		color: #06C;
 		width: 90px !important;
 		padding: 2px;
 }
@@ -154,18 +150,8 @@ footer a:hover {
 #multText{
 	text-align: right;
 }
-#score{
-
-}
-#score, ul{
-	text-align: right;
-	list-style-type: none;
-	font-family: Arial;
-}
-#score li{
-}
 #scoreText{
-	color: #09f;
+	color: #06C;
 	background-color: #FFF;
 	border: none;
 	font-size: 1em;
@@ -174,79 +160,22 @@ footer a:hover {
 	text-align: center;
 }
 #wFact{
-	color: #09f;
+	color: #06C;
 	font-style: italic;
 }
 #streak{
 	font-family: 'Bangers', cursive;
-	color: #06f;
+	color: #06C;
 	font-size: 2em;
-	line-height: 35px;
+	line-height: 45px;
+	vertical-align: middle;
 }
-
+#mainGameTitle{
+	font-family:Bangers;
+	color: #06C;
+}
 
 #wrapper {
 	width: 80%;
 	margin: auto;
-}
-#nav {
-	position:absolute;
-	top:0;
-	left: 0;
-	right:0;
-	background-color: #000;
-	color: #FFF;
-	font-size: 1em;
-	height: 50px;
-}
-#nav ul{ /* Overrides bootstrap, will eventually move a bootstrap look */
-	margin: 12px auto !important;
-}
-#nav li {
-	padding: 15px;
-	display: inline;
-	list-style-type: none;
-	vertical-align: middle;
-	line-height: 20px;
-}
-#nav li:hover {
-}
-#nav a {
-	text-decoration: none;
-	color: #FFF;
-}
-#nav a:hover {
-	color: #09F;
-}
-#nav h3{
-	webkit-touch-callout: none;
--webkit-user-select: none;
--khtml-user-select: none;
--moz-user-select: none;
--ms-user-select: none;
-user-select: none;
-}
-#nav select{
-	color: #000;
-}
-
-#intro {
-	opacity:0.9;
-	background-color: #CCC;
-	border-radius: 15px;
-	-moz-border-radius: 15px;
-	-ms-border-radius: 15px;
-	-o-border-radius: 15px;
-	-webkit-border-radius: 15px;
-	padding: 10px 50px;
-	min-height: 250px;
-	overflow:auto;
-	vertical-align:middle;
-}
-#content {
-	opacity:0.9;
-	padding: 0px 50px;
-	margin:auto;
-	min-height: 300px;
-	vertical-align:middle;
 }

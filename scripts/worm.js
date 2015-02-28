@@ -38,10 +38,12 @@ var _CONFIG = {
 	streakIncrement: 1,
 	speed: 70,
 	seconds: 0,
-	pause: true,
+	pause: false,
+	mute: false,
 	timer: null,
 	game: null,
-	theme: document.getElementById("themeSong")
+	theme: document.getElementById("themeSong"),
+	version: "1.6"
 }
 
 // Player Object
@@ -52,6 +54,7 @@ var _PLAYER = {
 	mult: 1,
 	streakCount: 0,
 	direction: "down",
+	difficultyBonus: 1.5,
 }
 
 // Create Worm Fact Array
@@ -75,6 +78,8 @@ var factArray = new Array("A worm has no arms, but has elbows.",
 	"Worms are notorious for coding themselves into a rip off Snake game.",
 	"Worms can be expensive... but they are not cheap either considering...");
 
+// Display Version Number
+document.getElementById("version").innerHTML = _CONFIG.version;
 
 // Game start
 function init(){
@@ -97,17 +102,18 @@ function init(){
 // Ends Game and Resets Variables to Default
 function gameOver(){
 
+	// Clear Intervals
 	clearInterval(_CONFIG.timer);
 	clearInterval(_CONFIG.game);
 
+	// Reset Globals
 	resetPlayer();
 	resetConfig();
 	_WORM = [];
 	_FOOD = [];
 
-
+	// Display Menu
 	displayStartMenu();
-	//beginRestartCountdown();
 	
 }
 
@@ -123,9 +129,49 @@ function displayStartMenu(){
     
 	// Open Start Menu
 	$('#StartMenu').modal({backdrop: 'static'});
-
-	// Handle Difficulty Logic Here
 }
+
+
+function pauseGame(){
+
+	// Open Start Menu
+	$('#StartMenu').modal({backdrop: 'static'});
+
+	
+	document.getElementById("resumeGame").disabled = false;
+	document.getElementById("startGame").disabled = true;
+
+	_CONFIG.speed = 0;
+	_CONFIG.theme.pause();
+	_CONFIG.pause = true;
+
+	clearInterval(_CONFIG.game);
+	clearInterval(_CONFIG.timer);
+
+	// Change Message
+	document.getElementById("mainGameTitle").innerHTML = "PAUSED!";
+}
+
+function resumeGame(){
+
+	$('#StartMenu').modal('hide');
+
+	document.getElementById("resumeGame").disabled = true;
+	document.getElementById("startGame").disabled = false;
+
+	_CONFIG.pause = false;
+	_CONFIG.speed = 70;
+	_CONFIG.theme.play();
+	_CONFIG.game  = setInterval(paint, _CONFIG.speed);
+	_CONFIG.timer = setInterval(function(){
+			_CONFIG.seconds++;
+			document.getElementById("timeText").innerHTML = _CONFIG.seconds;
+		}, 1000);
+
+	// Change Message
+	document.getElementById("mainGameTitle").innerHTML = "Super Worm";
+}
+
 
 // Puts the Player Object Back to default
 function resetPlayer(){
@@ -142,11 +188,15 @@ function resetPlayer(){
 // Resets Modifiable Config Settings
 function resetConfig(){
 	_CONFIG.wormReduction = 0.3;
+	_CONFIG.multMessage = "Get Small!";
 	_CONFIG.wormGrowth = 0;
 	_CONFIG.wormLength = 5;
 	_CONFIG.seconds = 0;
+	_CONFIG.speed = 70;
+	_CONFIG.pause = false;
 }
 
+// SuperWorm 1.4 - Used to reset the game with a countdown from 3
 function beginRestartCountdown(){
 
 	// Pausing isn't allowed
@@ -166,6 +216,7 @@ function beginRestartCountdown(){
     		}
 	},1000);
 }
+
 // Creates the worm
 function createWorm(){
 	for (var i = _CONFIG.wormLength -1; i >= 0; i--) {
@@ -222,17 +273,27 @@ function paint(){
 	paintBackground();
 
 	// Finds the head of the worm
-	var nx = _WORM[0].x;
-	var ny = _WORM[0].y;
+	var new_xPos = _WORM[0].x;
+	var new_yPos = _WORM[0].y;
 
 	// Direction the Worm is moving
-	if(_PLAYER.direction == "right") nx++;
-	else if(_PLAYER.direction == "left") nx--;
-	else if(_PLAYER.direction == "up") ny--;
-	else if(_PLAYER.direction == "down") ny++;
+	switch(_PLAYER.direction){
+		case "right":
+			new_xPos++;
+			break;
+		case "left":
+			new_xPos--;
+			break;
+		case "up":
+			new_yPos--;
+			break;
+		case "down":
+			new_yPos++;
+			break;
+	}
 
 	// Check for failure
-	if(nx == -1 || nx == w / _CONFIG.wormWidth || ny == -1 || ny == h / _CONFIG.wormWidth || checkCollision(nx, ny, _WORM)){
+	if(new_xPos == -1 || new_xPos == w / _CONFIG.wormWidth || new_yPos == -1 || new_yPos == h / _CONFIG.wormWidth || checkCollision(new_xPos, new_yPos, _WORM)){
 		// Print Scores and End Game
 		printScores();
 		gameOver();
@@ -240,36 +301,36 @@ function paint(){
 	}// if
 
 	for(i = 0; i < _FOOD.length; ++i){
-			if (nx == _FOOD[i].x && ny == _FOOD[i].y) {
+			if (new_xPos == _FOOD[i].x && new_yPos == _FOOD[i].y) {
 	           var tail; 
-	           wormLength = _WORM.length;
+	           var totalWormKilled = _WORM.length*_CONFIG.wormReduction;
 	           for(var j = 0; j < (_WORM.length*_CONFIG.wormReduction); ++j){
 	           		tail = _WORM.pop(); 
 	        	}
-		            calcMult(_CONFIG.multIncrement);
-		            tail.x = nx;
-		            tail.y = ny;
+		            tail.x = new_xPos;
+		            tail.y = new_yPos;
 
-		            _PLAYER.score = parseInt((_CONFIG.timer*((5/_WORM.length)*_WORM.length)*_PLAYER.mult)+_PLAYER.score);
+		            _PLAYER.score += parseInt((totalWormKilled*_PLAYER.mult)*_PLAYER.difficultyBonus);//parseInt((_CONFIG.timer*((5/_WORM.length)*_WORM.length)*_PLAYER.mult)+_PLAYER.score);
+		            calcMult(_CONFIG.multIncrement);
 		            createFood(i);
 		            streak(_CONFIG.streakIncrement);
 			}else{
 			var tail = {
-				x: nx,
-				y: ny
+				x: new_xPos,
+				y: new_yPos
 			};
 			if(_CONFIG.wormGrowth > _CONFIG.wormGrowthLimit){
 				tail = _WORM.pop();
 
-				tail.x = nx;
-				tail.y = ny;
+				tail.x = new_xPos;
+				tail.y = new_yPos;
 				_CONFIG.wormGrowth = 0;
 			}// if
 			else{
 				_CONFIG.wormGrowth++;
 
-				tail.x = nx;
-				tail.y = ny;
+				tail.x = new_xPos;
+				tail.y = new_yPos;
 			}// else
 		}// else
 	}// for
@@ -333,15 +394,18 @@ function calcMult(scoreAddition){
 //Prints the current and high scores accumulated by the player
 function printScores(){
 
-	// Display Game Score
-	var scoreText = "Score: "+_PLAYER.score;
+    // Save New High Score
+    if(_PLAYER.highScore < _PLAYER.score)
+    	_PLAYER.highScore = _PLAYER.score;
+
+	// Display Game Scores
 	ctx.font = 'bold 1.2em Arial';
 	ctx.fillStyle = _CONFIG.foodColor;
-	ctx.fillText(scoreText, 5, h-5);
-    
-    // Display New High Score
-    if(parseInt(document.getElementById("scoreText").value) < _PLAYER.score)	
-    	document.getElementById("scoreText").value = _PLAYER.score;
+	ctx.textAlign = "left";
+	ctx.fillText("Score: "+_PLAYER.score, 5, 17);
+	ctx.textAlign = "right";
+	ctx.fillText("Highscore: "+_PLAYER.highScore, w-5, 17);
+
 }// printScores()
 
 // Sets Streak depending on the streak number
@@ -351,10 +415,10 @@ function streak(i){
 	_PLAYER.streakCount += i;
 
 	// Display Streak Notification
-	if(_PLAYER.streakCount == 40){
+	if(_PLAYER.streakCount == 100){
 		streakNotification(null, "Worm Master!!!", 0.3);
 		_CONFIG.wormColor = "yellow";
-		clearInterval(_CONFIG.loop);
+		clearInterval(_CONFIG.game);
 		_CONFIG.speed = 45;
 		_CONFIG.game = setInterval(paint, _CONFIG.speed);
 	}
@@ -376,14 +440,18 @@ function streakNotification(id, msg, volume){
 
 	// If not default
 	if(id != null){
-		_CONFIG.theme.volume = volume;
-		document.getElementById(id).volume = 1.0;
-		document.getElementById(id).play();
+		if(!_CONFIG.mute){
+			_CONFIG.theme.volume = volume;
+			document.getElementById(id).volume = 1.0;
+			document.getElementById(id).play();
+		}
 		_PLAYER.power = true;
 
 		// Reset Theme Volume after 6 seconds
 		setTimeout(function(){
-					_CONFIG.theme.volume = 1.0;
+					if(!_CONFIG.mute)
+						_CONFIG.theme.volume = 1.0;
+
 					_CONFIG.multMessage = "Press SPACE!";
 					document.getElementById("streak").innerHTML = "Press SPACE!"
 				}, 6000);
@@ -416,15 +484,49 @@ function onWormColorChange(){
 }
 
 function onVolumeControlClick(){
-	if(_CONFIG.theme.volume == 0){
+	if(_CONFIG.mute){
+		_CONFIG.mute = false;
 		_CONFIG.theme.volume = 1;
 		document.getElementById("volumeControl").src = "./assets/volume_on.png";
 	}else{
+		_CONFIG.mute = true;
 		_CONFIG.theme.volume = 0;
 		document.getElementById("volumeControl").src = "./assets/volume_off.png";
 	}
 }
 	
+function onDifficultyClick(e){
+
+	document.getElementById("easy").removeAttribute("style");
+	document.getElementById("medium").removeAttribute("style");
+	document.getElementById("hard").removeAttribute("style");
+
+	document.getElementById(e.target.id).style.fontFamily = "Bangers";
+	document.getElementById(e.target.id).style.width = "200px";
+
+	switch(e.target.id){
+		case "easy":
+			_CONFIG.foodAmount = 5;
+			_CONFIG.speed = 85;
+			_PLAYER.difficultyBonus = 0.5;
+			break;
+		case "medium":
+			_CONFIG.foodAmount = 3;
+			_CONFIG.speed = 70;
+			_PLAYER.difficultyBonus = 1.5;
+			break;
+		case "hard":
+			_CONFIG.foodAmount = 1;
+			_CONFIG.speed = 55;
+			_PLAYER.difficultyBonus = 2.5;
+			break;
+		default:
+			_CONFIG.foodAmount = 3;
+			_CONFIG.speed = 70;
+			_PLAYER.difficultyBonus = 1.5;
+			break;
+	}
+}
 
 // Keyboard controls
 $(document).keydown(function(e) {
@@ -450,18 +552,22 @@ $(document).keydown(function(e) {
     	_CONFIG.theme.pause();
 
 		// Start Power Up Song from Beginning 
-		var powerUpSong = document.getElementById("cant")
-		powerUpSong.currentTime = 0;
-		powerUpSong.play();
+		if(!_CONFIG.mute){
+			var powerUpSong = document.getElementById("cant")
+			powerUpSong.currentTime = 0;
+			powerUpSong.play();
+		}
     	
     	setTimeout(function(){
     		document.getElementById("streak").innerHTML = "Get Small!";
-    		document.getElementById("cant").pause();
+    		if(!_CONFIG.mute){
+    			document.getElementById("cant").pause();
+    		}
 
     		changeTheme();
 			_CONFIG.multMessage = "Get Small!";
     		_CONFIG.wormReduction = 0.3;
-    		_CONFIG.theme.play();
+			_CONFIG.theme.play();
     		clearInterval(colorChange);
     	}, 5000);
     	
@@ -470,33 +576,19 @@ $(document).keydown(function(e) {
     }// Space Bar Key Press
     else if(key == 27){
     	// Pause
-    	if(_CONFIG.speed > 0 && _CONFIG.pause){
-	    	_CONFIG.speed = 0;
-	    	_CONFIG.theme.pause();
-	    	clearInterval(_CONFIG.game);
-	    	clearInterval(_CONFIG.timer);
-
-	    	// Change Message
-	    	document.getElementById("streak").innerHTML = "PAUSED!";
-	    }
+    	if(_CONFIG.speed > 0 && !_CONFIG.pause)
+    		pauseGame();
 	    // Play
-	    else if(_CONFIG.speed == 0){
-	    	_CONFIG.speed = 70;
-	    	_CONFIG.theme.play();
-	    	_CONFIG.game  = setInterval(paint, _CONFIG.speed);
-	    	_CONFIG.timer = setInterval(function(){
-					_CONFIG.seconds++;
-					document.getElementById("timeText").innerHTML = _CONFIG.seconds;
-				}, 1000);
-
-	    	// Change Message
-	    	document.getElementById("streak").innerHTML = _CONFIG.multMessage;
-	    }
+	    else if(_CONFIG.speed == 0)
+	    	resumeGame();
+	    
     }else if(key == 13){
     	if($('#StartMenu').hasClass('in')){
-    		$('#StartMenu').modal('hide');
-    		init();
+			$('#StartMenu').modal('hide');
+    		if(_CONFIG.pause)
+    			resumeGame();
+    		else
+    			init();
     	}
-    	//beginRestartCountdown();
     }
 })
