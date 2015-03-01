@@ -8,19 +8,19 @@ var h = canvas.height;
 var _WORM = []; 
 var _FOOD = [];
 
-// Theme Colors ordered by Worm Color, Food Color, and Background Color
-var _THEMES	=  [["#ecf0f1", "#3498db", "#000000"], // Basic
-				["#cbcad0", "#81c142", "#0f7d0d"], // Bone
-				["#e91a0a", "#ffffff", "#000000"], // Gears
-				["#505e82", "#a2b7dc", "#13263e"], // Halo
-				["#FFFFFF", "#DB0A5B", "#1abc9c"], // Hotline
-				["#e74c3c", "#2980b9", "#FFFFFF"], // Inverse
-				["#FFFFFF", "#1abc9c", "#8e44ad"], // Jibbles
-				["#e91a0a", "#331f82", "#816830"], // Legend
-				["#000000", "#999999", "#FFFFFF"], // Retro
-				["#ffffff", "#0072bb", "#222b6c"], // Station
-				["#e67e22", "#27ae60", "#2980b9"], // Sunset
-				["#d35400", "#f1c40f", "#f39c12"]];// Sunrise
+// Theme Colors ordered by Worm Color, Food Color, Background Color, and Name
+var _THEMES	=  [["#ecf0f1", "#3498db", "#000000", "Basic"], 
+				["#cbcad0", "#81c142", "#0f7d0d", "Bone"], 
+				["#e91a0a", "#ffffff", "#000000", "Gears"], 
+				["#505e82", "#a2b7dc", "#13263e", "Halo"], 
+				["#FFFFFF", "#DB0A5B", "#1abc9c", "Hotline"], 
+				["#e74c3c", "#2980b9", "#FFFFFF", "Inverse"], 
+				["#FFFFFF", "#1abc9c", "#8e44ad", "Jibbles"], 
+				["#e91a0a", "#331f82", "#816830", "Legend"], 
+				["#000000", "#999999", "#FFFFFF", "Retro"],
+				["#ffffff", "#0072bb", "#222b6c", "Station"], 
+				["#e67e22", "#27ae60", "#2980b9", "Sunset"], 
+				["#d35400", "#f1c40f", "#f39c12", "Sunrise"]];
 
 // Config Object
 var _CONFIG = {
@@ -43,7 +43,7 @@ var _CONFIG = {
 	timer: null,
 	game: null,
 	theme: document.getElementById("themeSong"),
-	version: "1.6"
+	version: "1.6.1"
 }
 
 // Player Object
@@ -54,7 +54,7 @@ var _PLAYER = {
 	mult: 1,
 	streakCount: 0,
 	direction: "down",
-	difficultyBonus: 1.5,
+	difficultyBonus: 5,
 }
 
 // Create Worm Fact Array
@@ -123,6 +123,7 @@ function displayStartMenu(){
 	// Render Background and initialize Streak, Multiplier, Worm Color and Worm Facts Worm Fact
     calcMult(0)
     changeTheme();
+    loadThemes();
     printWormFact();
 	paintBackground();
     streak(_CONFIG.streakIncrement);
@@ -132,19 +133,25 @@ function displayStartMenu(){
 }
 
 
+// Pauses the Game and Displays the Start Screen
 function pauseGame(){
 
 	// Open Start Menu
 	$('#StartMenu').modal({backdrop: 'static'});
 
-	
+	// Print a new Worm Fact
+    printWormFact();
+
+	// Change Game Flags
 	document.getElementById("resumeGame").disabled = false;
 	document.getElementById("startGame").disabled = true;
 
+	// Modifiy Config Settings
 	_CONFIG.speed = 0;
 	_CONFIG.theme.pause();
 	_CONFIG.pause = true;
 
+	// Stop Loops
 	clearInterval(_CONFIG.game);
 	clearInterval(_CONFIG.timer);
 
@@ -152,13 +159,17 @@ function pauseGame(){
 	document.getElementById("mainGameTitle").innerHTML = "PAUSED!";
 }
 
+// Resumes the game and Hides the Start Screen
 function resumeGame(){
 
+	// Hide Start Menu
 	$('#StartMenu').modal('hide');
 
+	// Change Game Flags
 	document.getElementById("resumeGame").disabled = true;
 	document.getElementById("startGame").disabled = false;
 
+	// Modify Config settings
 	_CONFIG.pause = false;
 	_CONFIG.speed = 70;
 	_CONFIG.theme.play();
@@ -176,7 +187,6 @@ function resumeGame(){
 // Puts the Player Object Back to default
 function resetPlayer(){
 
-	_PLAYER.highScore = _PLAYER.score;
 	_PLAYER.score = 0;
 	_PLAYER.power = false;
 	_PLAYER.mult = 1;
@@ -187,6 +197,7 @@ function resetPlayer(){
 
 // Resets Modifiable Config Settings
 function resetConfig(){
+
 	_CONFIG.wormReduction = 0.3;
 	_CONFIG.multMessage = "Get Small!";
 	_CONFIG.wormGrowth = 0;
@@ -194,6 +205,30 @@ function resetConfig(){
 	_CONFIG.seconds = 0;
 	_CONFIG.speed = 70;
 	_CONFIG.pause = false;
+
+}
+
+function loadThemes(){
+
+	// Get Color Dropdown
+	var colorDropdown = document.getElementById("wormColor");
+
+	// Remove any existing Options
+	var dropdownSize = colorDropdown.options.length;
+	for(var i = 0; i < dropdownSize; ++i)
+		colorDropdown.remove(0);
+
+	// Add Default Option
+	var themeOption = document.createElement("option");
+	themeOption.innerHTML = "-- Select Theme --";
+	colorDropdown.appendChild(themeOption);
+
+	// Add Themes from Array
+	for(var j = 0; j < _THEMES.length; ++j){
+		themeOption = document.createElement("option");
+		themeOption.innerHTML = _THEMES[j][3];
+		colorDropdown.appendChild(themeOption);
+	}
 }
 
 // SuperWorm 1.4 - Used to reset the game with a countdown from 3
@@ -217,14 +252,14 @@ function beginRestartCountdown(){
 	},1000);
 }
 
-// Creates the worm
+// Creates the Worm Body
 function createWorm(){
 	for (var i = _CONFIG.wormLength -1; i >= 0; i--) {
 		_WORM.push({
 			x: Math.round((w/2)/_CONFIG.wormWidth),
 			y: i
 		});
-	}// for
+	}
 }
 
 // Create food for worm
@@ -310,7 +345,7 @@ function paint(){
 		            tail.x = new_xPos;
 		            tail.y = new_yPos;
 
-		            _PLAYER.score += parseInt((totalWormKilled*_PLAYER.mult)*_PLAYER.difficultyBonus);//parseInt((_CONFIG.timer*((5/_WORM.length)*_WORM.length)*_PLAYER.mult)+_PLAYER.score);
+		            _PLAYER.score += parseInt((totalWormKilled*_PLAYER.mult)*_PLAYER.difficultyBonus);
 		            calcMult(_CONFIG.multIncrement);
 		            createFood(i);
 		            streak(_CONFIG.streakIncrement);
@@ -360,25 +395,24 @@ function paintBackground(){
 
 //paints the cells of the worm and food
 function paintCell(x, y, z){
-	if(z == "f"){
+	if(z == "f")
 		ctx.fillStyle = _CONFIG.foodColor;
-	}
-	else{
+	else
 		ctx.fillStyle = _CONFIG.wormColor;
-	}
 
+	// Paint the cell
 	ctx.fillRect(x * _CONFIG.wormWidth, y * _CONFIG.wormWidth, _CONFIG.wormWidth, _CONFIG.wormWidth);
 	ctx.strokeStyle = "black";
 	ctx.strokeRect(x * _CONFIG.wormWidth, y * _CONFIG.wormWidth, _CONFIG.wormWidth, _CONFIG.wormWidth);
-}// paintCell()
+}
 
 
 
 //Check to see if the worm has touched a wall or itself
 function checkCollision(x, y, array){
-	for (var i = 0; i < array.length; i++) {
+	for (var i = 0; i < array.length; i++)
     	if (array[i].x == x && array[i].y == y) return true;
-	}// for
+
 	return false;
 }// checkCollision()
 
@@ -389,7 +423,7 @@ function calcMult(scoreAddition){
 		_PLAYER.mult -= (_PLAYER.mult%scoreAddition);
 
 	document.getElementById("multText").innerHTML ="x"+_PLAYER.mult;
-}// calcMult()
+}
 
 //Prints the current and high scores accumulated by the player
 function printScores(){
@@ -406,7 +440,7 @@ function printScores(){
 	ctx.textAlign = "right";
 	ctx.fillText("Highscore: "+_PLAYER.highScore, w-5, 17);
 
-}// printScores()
+}
 
 // Sets Streak depending on the streak number
 function streak(i){
@@ -430,7 +464,7 @@ function streak(i){
 		streakNotification("holy", "Holy Shit!!!", 0.3);
 	else
 		streakNotification(null, "Get Small!", 0.0);
-}// streak()
+}
 
 // Displays the Notification and the appropriate sound clip
 function streakNotification(id, msg, volume){
@@ -464,6 +498,7 @@ function printWormFact(){
 	document.getElementById("wFact").innerHTML = factArray[num];
 }
 
+// Change the Game Theme
 function changeTheme(){
 		var colorIndex = document.getElementById("wormColor").selectedIndex-1;
 		if(colorIndex >= 0){
@@ -478,11 +513,13 @@ function changeTheme(){
 		}
 }
 
+// Removes focus from dropdown focus remains on game
 function onWormColorChange(){
 	changeTheme();
 	document.getElementById("wormColor").blur();
 }
 
+// Mute or unmute the Game volume
 function onVolumeControlClick(){
 	if(_CONFIG.mute){
 		_CONFIG.mute = false;
@@ -494,38 +531,55 @@ function onVolumeControlClick(){
 		document.getElementById("volumeControl").src = "./assets/volume_off.png";
 	}
 }
-	
+
+// Modify the Game Settings based of the difficulty
 function onDifficultyClick(e){
 
-	document.getElementById("easy").removeAttribute("style");
-	document.getElementById("medium").removeAttribute("style");
-	document.getElementById("hard").removeAttribute("style");
+	// Change Styles
+	UpdateDifficultyButtonStyles(e);
 
-	document.getElementById(e.target.id).style.fontFamily = "Bangers";
-	document.getElementById(e.target.id).style.width = "200px";
-
+	// Change Game Settings
 	switch(e.target.id){
 		case "easy":
 			_CONFIG.foodAmount = 5;
 			_CONFIG.speed = 85;
-			_PLAYER.difficultyBonus = 0.5;
+			_PLAYER.difficultyBonus = 1;
 			break;
 		case "medium":
 			_CONFIG.foodAmount = 3;
 			_CONFIG.speed = 70;
-			_PLAYER.difficultyBonus = 1.5;
+			_PLAYER.difficultyBonus = 5;
 			break;
 		case "hard":
 			_CONFIG.foodAmount = 1;
 			_CONFIG.speed = 55;
-			_PLAYER.difficultyBonus = 2.5;
+			_PLAYER.difficultyBonus = 10;
 			break;
 		default:
 			_CONFIG.foodAmount = 3;
 			_CONFIG.speed = 70;
-			_PLAYER.difficultyBonus = 1.5;
+			_PLAYER.difficultyBonus = 5;
 			break;
 	}
+}
+
+// Update the difficulty button styles 
+function UpdateDifficultyButtonStyles(e){
+
+	// Clear Styles
+	document.getElementById("easy").removeAttribute("style");
+	document.getElementById("medium").removeAttribute("style");
+	document.getElementById("hard").removeAttribute("style");
+
+	// Give Opacity Styles to make buttons look unactive
+	document.getElementById("easy").style.opacity = 0.5;
+	document.getElementById("medium").style.opacity = 0.5;
+	document.getElementById("hard").style.opacity = 0.5;
+
+	// Remove opacity, add width and give game font for button clicked
+	document.getElementById(e.target.id).removeAttribute("style");
+	document.getElementById(e.target.id).style.fontFamily = "Bangers";
+	document.getElementById(e.target.id).style.width = "200px";
 }
 
 // Keyboard controls

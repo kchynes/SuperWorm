@@ -2,7 +2,7 @@
 		ELEMENTS
 ************************/
 body {
-	margin-top: 50px;
+	margin-top: 80px;
 	font-family:Arial, Helvetica, sans-serif;
 }
 h2, h3 {
@@ -120,6 +120,12 @@ footer a:hover {
 .SuperWormBtnWidth{
 	width: 100px;
 }
+.noOutline{
+	outline: none !important;
+}
+.floatRight{
+	float:right;
+}
 /************************
 		IDS
 ************************/
@@ -173,6 +179,10 @@ footer a:hover {
 #mainGameTitle{
 	font-family:Bangers;
 	color: #06C;
+	display: inline;
+	height: 50px;
+	vertical-align: middle;
+	margin-left: 20px;
 }
 
 #wrapper {

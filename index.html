@@ -15,7 +15,6 @@
   		<source src="./assets/SycamoreDrive_Kicks.mp3" type="audio/mpeg">Your browser does not support the audio element.
 	</audio>
 	<div id="center">
-		<p id="wFact"></p><br>
 		<canvas id="canvas" width="900" height="500"></canvas>
 		<div id="time">
 			<li id="timeText">0</li>
@@ -43,15 +42,16 @@
 	    <div class="modal-content superWormText">
 	      <div class="modal-header centerControls">
 	        <h1 id="mainGameTitle">Super Worm</h1>
-			<img id="volumeControl" src="./assets/volume_on.png" title="Volume ON/OFF" alt="Volume ON/OFF" style="text-align:left !important;" onclick="onVolumeControlClick()" />
+			<img id="volumeControl" src="./assets/volume_on.png" title="Volume ON/OFF" alt="Volume ON/OFF" class="floatRight" onclick="onVolumeControlClick()" />
+			<p id="wFact"></p>
 	      </div>
 
 	      <div class="modal-body">
 		      <div class="centerControls">
 		        <div class="btn-group btn-group-lg" role="group" aria-label="..." data-toggle="buttons">
-				  <button id="easy" type="button" class="btn btn-info SuperWormBtnWidth" onclick="onDifficultyClick(event)">Easy</button>
-				  <button id="medium" type="button" class="btn btn-warning SuperWormBtnWidth" style="font-family:Bangers; width:200px;" onclick="onDifficultyClick(event)">Medium</button>
-				  <button id="hard" type="button" class="btn btn-danger SuperWormBtnWidth" onclick="onDifficultyClick(event)">Hard</button>
+				  <button id="easy" type="button" class="btn btn-info SuperWormBtnWidth noOutline" onclick="onDifficultyClick(event)" style="opacity:0.5">Easy</button>
+				  <button id="medium" type="button" class="btn btn-warning SuperWormBtnWidth noOutline" style="font-family:Bangers; width:200px;" onclick="onDifficultyClick(event)">Medium</button>
+				  <button id="hard" type="button" class="btn btn-danger SuperWormBtnWidth noOutline" onclick="onDifficultyClick(event)" style="opacity:0.5">Hard</button>
 				</div>
 
 				<br/>
