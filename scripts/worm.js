@@ -8,19 +8,23 @@ var h = canvas.height;
 var _WORM = []; 
 var _FOOD = [];
 
+// Walls
+var _WALL1 = [];
+var _WALL2 = [];
+
 // Theme Colors ordered by Worm Color, Food Color, Background Color, and Name
-var _THEMES	=  [["#ecf0f1", "#3498db", "#000000", "Basic"], 
-				["#cbcad0", "#81c142", "#0f7d0d", "Bone"], 
-				["#e91a0a", "#ffffff", "#000000", "Gears"], 
-				["#505e82", "#a2b7dc", "#13263e", "Halo"], 
-				["#FFFFFF", "#DB0A5B", "#1abc9c", "Hotline"], 
-				["#e74c3c", "#2980b9", "#FFFFFF", "Inverse"], 
-				["#FFFFFF", "#1abc9c", "#8e44ad", "Jibbles"], 
-				["#e91a0a", "#331f82", "#816830", "Legend"], 
-				["#000000", "#999999", "#FFFFFF", "Retro"],
-				["#ffffff", "#0072bb", "#222b6c", "Station"], 
-				["#e67e22", "#27ae60", "#2980b9", "Sunset"], 
-				["#d35400", "#f1c40f", "#f39c12", "Sunrise"]];
+var _THEMES	=  [["Basic", "#ecf0f1", "#3498db", "#000000", "#00ff01"], 
+				["Bone", "#cbcad0", "#81c142", "#0f7d0d", "#7f8c8d"], 
+				["Gears", "#e91a0a", "#ffffff", "#000000", "#333333"], 
+				["Halo", "#505e82", "#a2b7dc", "#13263e", "#34495e"], 
+				["Hotline", "#FFFFFF", "#DB0A5B", "#1abc9c", "#fbc5a3"], 
+				["Inverse", "#e74c3c", "#2980b9", "#FFFFFF", "#333333"], 
+				["Jibbles", "#FFFFFF", "#1abc9c", "#8e44ad", "#333333"], 
+				["Legend", "#e91a0a", "#331f82", "#816830", "#333333"], 
+				["Retro", "#000000", "#999999", "#FFFFFF", "#333333"],
+				["Station", "#ffffff", "#0072bb", "#222b6c", "#333333"], 
+				["Sunset", "#e67e22", "#27ae60", "#2980b9", "#333333"], 
+				["Sunrise", "#d35400", "#f1c40f", "#f39c12", "#666666"]];
 
 // Config Object
 var _CONFIG = {
@@ -29,10 +33,11 @@ var _CONFIG = {
 	wormReduction: 0.3,
 	wormGrowth: 0,
 	wormGrowthLimit: 5,
-	wormColor: _THEMES[0][0],
+	wormColor: _THEMES[0][1],
 	foodAmount: 3,
-	foodColor: _THEMES[0][1],
-	bgColor: _THEMES[0][2],
+	foodColor: _THEMES[0][2],
+	bgColor: _THEMES[0][3],
+	wallColor: _THEMES[0][4],
 	multIncrement: 5,
 	multMessage: "GET SMALL!",
 	streakIncrement: 1,
@@ -43,7 +48,7 @@ var _CONFIG = {
 	timer: null,
 	game: null,
 	theme: document.getElementById("themeSong"),
-	version: "1.6.1"
+	version: "1.7"
 }
 
 // Player Object
@@ -54,29 +59,30 @@ var _PLAYER = {
 	mult: 1,
 	streakCount: 0,
 	direction: "down",
-	difficultyBonus: 5,
+	difficulty: "medium",
+	difficultyBonus: 5
 }
 
 // Create Worm Fact Array
-var factArray = new Array("A worm has no arms, but has elbows.", 
-	"In one acre of land, there can be more than a million earthworms.",
-	"Worms can eat their weight each day, but will purge to maintain their figure.", 
-	"This game has nothing to do with worms, beside the name.", 
-	"A worm is like a snake, but weirder.", 
-	"Worms feed off the aura of dead pandas.", 
-	"60% of a worms body composition is actually horse DNA.", 
-	"In Soviet Russia worms are domesticated pets.",
-	"Worms have a raging addiction to Oreo cookies.",
-	"A worm insurance is known for its dental care.",
-	"In latin, worm means \"To steal thy neighbors poncho\"",
-	"Wormstradomus predicts that global composting will reach an all time high by year 2020.",
-	"Worm, proudly sponsored by John Deere equipment - \"If it ain't worm, it ain't Deere.\"",
-	"This theme song brought to you by the wonderful Sycamore Drive - City Sounds!",
-	"A worm will chew its nails when it's nervous.",
-	"Typically a worm loses job interviews 9 times out of 10 because of the economy.",
-	"If you place a worm on top of a cat, it will most likely die.",
-	"Worms are notorious for coding themselves into a rip off Snake game.",
-	"Worms can be expensive... but they are not cheap either considering...");
+var _FACT = ["A worm has no arms, but has elbows.", 
+			"In one acre of land, there can be more than a million earthworms.",
+			"Worms can eat their weight each day, but will purge to maintain their figure.", 
+			"This game has nothing to do with worms, beside the name.", 
+			"A worm is like a snake, but weirder.", 
+			"Worms feed off the aura of dead pandas.", 
+			"60% of a worms body composition is actually horse DNA.", 
+			"In Soviet Russia worms are domesticated pets.",
+			"Worms have a raging addiction to Oreo cookies.",
+			"A worm insurance is known for its dental care.",
+			"In latin, worm means \"To steal thy neighbors poncho\"",
+			"Wormstradomus predicts that global composting will reach an all time high by year 2020.",
+			"Worm, proudly sponsored by John Deere equipment - \"If it ain't worm, it ain't Deere.\"",
+			"This theme song brought to you by the wonderful Sycamore Drive - City Sounds!",
+			"A worm will chew its nails when it's nervous.",
+			"Typically a worm loses job interviews 9 times out of 10 because of the economy.",
+			"If you place a worm on top of a cat, it will most likely die.",
+			"Worms are notorious for coding themselves into a rip off Snake game.",
+			"Worms can be expensive... but they are not cheap either considering..."];
 
 // Display Version Number
 document.getElementById("version").innerHTML = _CONFIG.version;
@@ -109,8 +115,10 @@ function gameOver(){
 	// Reset Globals
 	resetPlayer();
 	resetConfig();
-	_WORM = [];
-	_FOOD = [];
+	_WORM  = [];
+	_FOOD  = [];
+	_WALL1 = [];
+	_WALL2 = [];
 
 	// Display Menu
 	displayStartMenu();
@@ -226,7 +234,7 @@ function loadThemes(){
 	// Add Themes from Array
 	for(var j = 0; j < _THEMES.length; ++j){
 		themeOption = document.createElement("option");
-		themeOption.innerHTML = _THEMES[j][3];
+		themeOption.innerHTML = _THEMES[j][0];
 		colorDropdown.appendChild(themeOption);
 	}
 }
@@ -288,10 +296,9 @@ function createFoodLocation(index){
 		var foodX_pos = Math.round(Math.random() * (w - _CONFIG.wormWidth) / _CONFIG.wormWidth);
 		var foodY_pos = Math.round(Math.random() * (h - _CONFIG.wormWidth) / _CONFIG.wormWidth);
 
-		// Loop through each worm piece for collision
-		for(var i = 0; i < _WORM.length; i++)
-			if(foodX_pos == _WORM[i].x && foodY_pos == _WORM[i].y)
-				invalidLocation = true;
+		// Check that Food isn't on top of anything
+		if(checkCollision(foodX_pos, foodY_pos, _WORM) || checkCollision(foodX_pos, foodY_pos, _WALL1) || checkCollision(foodX_pos, foodY_pos, _WALL2))
+			invalidLocation = true;
 	}
 
 	// Set Foods X and Y Coordinates
@@ -328,7 +335,7 @@ function paint(){
 	}
 
 	// Check for failure
-	if(new_xPos == -1 || new_xPos == w / _CONFIG.wormWidth || new_yPos == -1 || new_yPos == h / _CONFIG.wormWidth || checkCollision(new_xPos, new_yPos, _WORM)){
+	if(new_xPos == -1 || new_xPos == w / _CONFIG.wormWidth || new_yPos == -1 || new_yPos == h / _CONFIG.wormWidth || checkCollision(new_xPos, new_yPos, _WORM) || checkCollision(new_xPos, new_yPos, _WALL1) || checkCollision(new_xPos, new_yPos, _WALL2)){
 		// Print Scores and End Game
 		printScores();
 		gameOver();
@@ -378,12 +385,129 @@ function paint(){
 	}
 
 	//Paints each food in the array
-	for(i = 0; i <_FOOD.length; ++i){
+	for(var i = 0; i <_FOOD.length; ++i){
 		paintCell(_FOOD[i].x, _FOOD[i].y, "f");
 	}
 
 	printScores();
-}// paint()
+
+	// Render Walls based off difficulty
+	if(_PLAYER.difficulty == "medium")
+		createMediumWalls();
+	if(_PLAYER.difficulty == "hard")
+		createHardWalls();
+
+}
+
+// Creates Walls made for Medium Difficulty
+function createMediumWalls(){
+
+	var starting_XPoint = parseInt((w/_CONFIG.wormWidth)/2)-6;
+	var reflection_XPoint = parseInt((w/_CONFIG.wormWidth)/2) + 5;
+
+	var starting_YPoint = parseInt((h/_CONFIG.wormWidth)/2)-1;
+	var reflection_YPoint = parseInt((h/_CONFIG.wormWidth)/2)-1;
+
+	var maxWallPerSection = 5;
+
+	for(var j = 0; j <= maxWallPerSection; ++j){
+		// Get West walls
+		_WALL1[j + (maxWallPerSection*0)] = {
+			x: starting_XPoint - j,
+			y: starting_YPoint
+		};
+		_WALL2[j + (maxWallPerSection*0)] = {
+			x: reflection_XPoint + j,
+			y: reflection_YPoint
+		};
+
+		// Get North Walls
+		_WALL1[j + (maxWallPerSection*1)] = {
+			x: starting_XPoint,
+			y: starting_YPoint - j
+		};
+		_WALL2[j + (maxWallPerSection*1)] = {
+			x: reflection_XPoint,
+			y: reflection_YPoint - j
+		};
+
+		// Get South Walls
+		_WALL1[j + (maxWallPerSection*2)] = {
+			x: starting_XPoint,
+			y: starting_YPoint + j
+		};
+		_WALL2[j + (maxWallPerSection*2)] = {
+			x: reflection_XPoint,
+			y: reflection_YPoint + j
+		};
+	}
+	
+
+	for(var i = 0; i < _WALL1.length; ++i){
+		paintCell(_WALL1[i].x, _WALL1[i].y, "w");
+		paintCell(_WALL2[i].x, _WALL2[i].y, "w");
+	}
+}
+
+// Creates Walls made for Hard Difficulty
+function createHardWalls(){
+
+	var starting_XPoint = parseInt((w/_CONFIG.wormWidth)/3)+1;
+	var reflection_XPoint = parseInt((w/_CONFIG.wormWidth)/3)*2-2;
+
+	var starting_YPoint = parseInt((h/_CONFIG.wormWidth)/3)+1;
+	var reflection_YPoint = parseInt((h/_CONFIG.wormWidth)/3)+1;
+
+	var maxWallPerSection = 5;
+
+	for(var j = 0; j < maxWallPerSection; ++j){
+		// Get NorthWest Wall
+		_WALL1[j + (maxWallPerSection*0)] = {
+			x: starting_XPoint - j,
+			y: starting_YPoint
+		};
+		_WALL1[j + (maxWallPerSection*1)] = {
+			x: starting_XPoint,
+			y: starting_YPoint - j
+		};
+
+		// Get NorthEast Wall
+		_WALL2[j + (maxWallPerSection*0)] = {
+			x: reflection_XPoint + j,
+			y: reflection_YPoint
+		};
+		_WALL2[j + (maxWallPerSection*1)] = {
+			x: reflection_XPoint,
+			y: reflection_YPoint - j
+		};
+
+		// SouthWest Wall
+		_WALL1[j + (maxWallPerSection*2)] = {
+			x: starting_XPoint - j,
+			y: (starting_YPoint*2-2)
+		};
+		_WALL1[j + (maxWallPerSection*3)] = {
+			x: starting_XPoint,
+			y: (starting_YPoint*2-2) + j
+		};
+
+		// SouthEast Wall
+		_WALL2[j + (maxWallPerSection*2)] = {
+			x: reflection_XPoint + j,
+			y: (reflection_YPoint*2-2)
+		};
+		_WALL2[j + (maxWallPerSection*3)] = {
+			x: reflection_XPoint,
+			y: (reflection_YPoint*2-2) + j
+		};
+
+	}
+
+	for(var i = 0; i < _WALL1.length; ++i){
+		paintCell(_WALL1[i].x, _WALL1[i].y, "w");
+		paintCell(_WALL2[i].x, _WALL2[i].y, "w");
+	}
+}
 
 // Paints the Background of the Canvas
 function paintBackground(){
@@ -397,6 +521,8 @@ function paintBackground(){
 function paintCell(x, y, z){
 	if(z == "f")
 		ctx.fillStyle = _CONFIG.foodColor;
+	else if(z == "w")
+		ctx.fillStyle = _CONFIG.wallColor;
 	else
 		ctx.fillStyle = _CONFIG.wormColor;
 
@@ -405,8 +531,6 @@ function paintCell(x, y, z){
 	ctx.strokeStyle = "black";
 	ctx.strokeRect(x * _CONFIG.wormWidth, y * _CONFIG.wormWidth, _CONFIG.wormWidth, _CONFIG.wormWidth);
 }
-
-
 
 //Check to see if the worm has touched a wall or itself
 function checkCollision(x, y, array){
@@ -494,22 +618,24 @@ function streakNotification(id, msg, volume){
 
 // Prints a new Worm Fact
 function printWormFact(){
-	var num = Math.floor((Math.random()*(factArray.length-1))+1);
-	document.getElementById("wFact").innerHTML = factArray[num];
+	var num = Math.floor((Math.random()*(_FACT.length-1))+1);
+	document.getElementById("wFact").innerHTML = _FACT[num];
 }
 
 // Change the Game Theme
 function changeTheme(){
 		var colorIndex = document.getElementById("wormColor").selectedIndex-1;
 		if(colorIndex >= 0){
-			_CONFIG.wormColor = _THEMES[colorIndex][0];
-			_CONFIG.foodColor = _THEMES[colorIndex][1];
-			_CONFIG.bgColor   = _THEMES[colorIndex][2];
+			_CONFIG.wormColor = _THEMES[colorIndex][1];
+			_CONFIG.foodColor = _THEMES[colorIndex][2];
+			_CONFIG.bgColor   = _THEMES[colorIndex][3];
+			_CONFIG.wallColor = _THEMES[colorIndex][4];
 		}
 		else {
-			_CONFIG.wormColor = _THEMES[0][0];
-			_CONFIG.foodColor = _THEMES[0][1];
-			_CONFIG.bgColor   = _THEMES[0][2];
+			_CONFIG.wormColor = _THEMES[0][1];
+			_CONFIG.foodColor = _THEMES[0][2];
+			_CONFIG.bgColor   = _THEMES[0][3];
+			_CONFIG.wallColor = _THEMES[0][4];
 		}
 }
 
@@ -543,21 +669,25 @@ function onDifficultyClick(e){
 		case "easy":
 			_CONFIG.foodAmount = 5;
 			_CONFIG.speed = 85;
+			_PLAYER.difficulty = "easy";
 			_PLAYER.difficultyBonus = 1;
 			break;
 		case "medium":
 			_CONFIG.foodAmount = 3;
 			_CONFIG.speed = 70;
+			_PLAYER.difficulty = "medium";
 			_PLAYER.difficultyBonus = 5;
 			break;
 		case "hard":
-			_CONFIG.foodAmount = 1;
-			_CONFIG.speed = 55;
+			_CONFIG.foodAmount = 2;
+			_CONFIG.speed = 60;
+			_PLAYER.difficulty = "hard";
 			_PLAYER.difficultyBonus = 10;
 			break;
 		default:
 			_CONFIG.foodAmount = 3;
 			_CONFIG.speed = 70;
+			_PLAYER.difficulty = "medium";
 			_PLAYER.difficultyBonus = 5;
 			break;
 	}
@@ -586,13 +716,13 @@ function UpdateDifficultyButtonStyles(e){
 $(document).keydown(function(e) {
     var key = e.which;
     
-    if ((key == 37 || key == 65) && _PLAYER.direction != "right") 
+    if ((key == 37 || key == 65) && _PLAYER.direction != "right" && !$('#StartMenu').hasClass('in')) 
     	_PLAYER.direction = "left";
-    else if ((key == 38 || key == 87) && _PLAYER.direction != "down") 
+    else if ((key == 38 || key == 87) && _PLAYER.direction != "down" && !$('#StartMenu').hasClass('in')) 
     	_PLAYER.direction = "up";
-    else if ((key == 39 || key == 68) && _PLAYER.direction != "left") 
+    else if ((key == 39 || key == 68) && _PLAYER.direction != "left" && !$('#StartMenu').hasClass('in')) 
     	_PLAYER.direction = "right";
-    else if ((key == 40 || key == 83) && _PLAYER.direction != "up") 
+    else if ((key == 40 || key == 83) && _PLAYER.direction != "up" && !$('#StartMenu').hasClass('in')) 
     	_PLAYER.direction = "down";
     else if(key == 32 && _PLAYER.power) {
     	// Alternate Colors
