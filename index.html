@@ -37,39 +37,61 @@
 
 
 	<!-- START MENU -->
-	<div class="modal fade" id="StartMenu">
-	  <div class="modal-dialog">
+	<div class="modal fade " id="StartMenu">
+	  <div class="modal-dialog" style="width:50%;">
 	    <div class="modal-content superWormText">
-	      <div class="modal-header centerControls">
+	      <div class="menuHeader centerControls">
 	        <h1 id="mainGameTitle">Super Worm</h1>
 			<img id="volumeControl" src="./assets/volume_on.png" title="Volume ON/OFF" alt="Volume ON/OFF" class="floatRight" onclick="onVolumeControlClick()" />
 			<p id="wFact"></p>
 	      </div>
 
 	      <div class="modal-body">
+
+	      <!-- Nav tabs -->
+		  <ul class="nav nav-tabs  nav-justified" role="tablist">
+		    <li role="presentation" class="active"><a href="#home" aria-controls="home" role="tab" data-toggle="tab" style="font-family:Bangers; font-size:1.5em;">Home</a></li>
+		    <li role="presentation"><a href="#achievements" aria-controls="achievements" role="tab" data-toggle="tab" style="font-family:Bangers; font-size:1.5em;">Achievements</a></li>
+		  </ul>
+
+		  <!-- Tab panes -->
+		  <div class="tab-content">
+		    <div role="tabpanel" class="tab-pane active" id="home">
 		      <div class="centerControls">
-		        <div class="btn-group btn-group-lg" role="group" aria-label="..." data-toggle="buttons">
-				  <button id="easy" type="button" class="btn btn-info SuperWormBtnWidth noOutline" onclick="onDifficultyClick(event)" style="opacity:0.5">Easy</button>
-				  <button id="medium" type="button" class="btn btn-warning SuperWormBtnWidth noOutline" style="font-family:Bangers; width:200px;" onclick="onDifficultyClick(event)">Medium</button>
-				  <button id="hard" type="button" class="btn btn-danger SuperWormBtnWidth noOutline" onclick="onDifficultyClick(event)" style="opacity:0.5">Hard</button>
-				</div>
+		      		<br>
+			        <div class="btn-group btn-group-lg" role="group" aria-label="..." data-toggle="buttons">
+					  <label class="btn btn-info SuperWormBtnWidth" id="easy" onclick="onDifficultyClick(event)" style="">
+					    <input type="radio" name="options" autocomplete="off"  > Easy
+					  </label>
+					  <label class="btn btn-warning active SuperWormBtnWidth" id="medium" onclick="onDifficultyClick(event)" style="font-family:Bangers; width:170px;">
+					    <input type="radio" name="options" autocomplete="off" checked> Medium
+					  </label>
+					  <label class="btn btn-danger SuperWormBtnWidth" id="hard" onclick="onDifficultyClick(event)" style="">
+					    <input type="radio" name="options" autocomplete="off"> Hard
+					  </label>
+					</div>
 
-				<br/>
-				<br/>
+					<br/>
+					<br/>
 
-				<div class="form-inline">
-					<div class="form-group">
-						<select id="wormColor" onchange="onWormColorChange()" class="form-control superWormText" style="font-family:Bangers; font-size: 1.2em;"></select>
+					<div class="form-inline">
+						<div class="form-group">
+							<select id="wormColor" onchange="onWormColorChange()" class="form-control superWormText" style="font-family:Bangers; font-size: 1.2em;"></select>
+						</div>
 					</div>
 				</div>
-			</div>
-			<br>
-			<ul>
-				<li><strong>Start/Resume:</strong> <kbd>[Enter]</kbd> from main menu.</li>
-				<li><strong>Pause:</strong> <kbd>[ESC]</kbd>.</li>
-				<li><strong>Movement:</strong> <kbd>[Arrow Keys]</kbd> or <kbd>[WASD]</kbd>.</li>
-				<li><strong>Special:</strong> <kbd>[Space]</kbd> when a streak is gained.</li>
-			</ul>
+				<br>
+				<ul>
+					<li><strong>Start/Resume:</strong> <kbd>[Enter]</kbd> from main menu.</li>
+					<li><strong>Pause:</strong> <kbd>[ESC]</kbd>.</li>
+					<li><strong>Movement:</strong> <kbd>[Arrow Keys]</kbd> or <kbd>[WASD]</kbd>.</li>
+					<li><strong>Special:</strong> <kbd>[Space]</kbd> when a streak is gained.</li>
+				</ul>
+		    </div>
+		    <div role="tabpanel" class="tab-pane" id="achievements" style="overflow-y:scroll; height:500px;">
+		    	<table id="achievementTable"></table>
+		    </div>
+		  </div>
 	      </div>
 	      <div class="modal-footer centerControls">
 	        <button type="button" id="resumeGame" class="btn btn-success btn-lg SuperWormBtnWidth" style="font-family:Bangers;" onclick="resumeGame()" disabled="disabled">Resume</button>

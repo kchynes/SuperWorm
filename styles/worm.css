@@ -118,7 +118,7 @@ footer a:hover {
 	font-family: Bangers !important;
 }
 .SuperWormBtnWidth{
-	width: 100px;
+	width: 150px;
 }
 .noOutline{
 	outline: none !important;
@@ -126,9 +126,35 @@ footer a:hover {
 .floatRight{
 	float:right;
 }
+.menuHeader{
+	margin: 10px;
+}
 /************************
 		IDS
 ************************/
+#achievementTable{
+	font-size: 1.2em;
+	margin: 10px auto;
+	width: 95%;
+}
+	#achievementTable td:first-child{
+		font-family: Bangers;
+		font-size: 1.1em;
+		padding-right:10px;
+		padding-left:10px;
+		width: 30%;
+	}
+	#achievementTable td:last-child{
+		padding:5px 5px;
+	}
+	#achievementTable tr{
+		height: 40px;
+	}
+	#achievementTable tr:nth-child(even){
+		background: #337AB7;
+		color: #FFF;
+	}
+
 #time{
 	width: 400px;
 }

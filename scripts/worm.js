@@ -9,11 +9,10 @@ var _WORM = [];
 var _FOOD = [];
 
 // Walls
-var _WALL1 = [];
-var _WALL2 = [];
+var _WALLS = [];
 
 // Theme Colors ordered by Worm Color, Food Color, Background Color, and Name
-var _THEMES	=  [["Basic", "#ecf0f1", "#3498db", "#000000", "#00ff01"], 
+var _THEMES	=  [["Basic", "#ecf0f1", "#2ecc71", "#000000", "#3498db"], 
 				["Bone", "#cbcad0", "#81c142", "#0f7d0d", "#7f8c8d"], 
 				["Gears", "#e91a0a", "#ffffff", "#000000", "#333333"], 
 				["Halo", "#505e82", "#a2b7dc", "#13263e", "#34495e"], 
@@ -30,7 +29,7 @@ var _THEMES	=  [["Basic", "#ecf0f1", "#3498db", "#000000", "#00ff01"],
 var _CONFIG = {
 	wormWidth: 25,
 	wormLength: 5,
-	wormReduction: 0.3,
+	wormReduction: 0.4,
 	wormGrowth: 0,
 	wormGrowthLimit: 5,
 	wormColor: _THEMES[0][1],
@@ -48,7 +47,7 @@ var _CONFIG = {
 	timer: null,
 	game: null,
 	theme: document.getElementById("themeSong"),
-	version: "1.7"
+	version: "1.7.1"
 }
 
 // Player Object
@@ -87,12 +86,87 @@ var _FACT = ["A worm has no arms, but has elbows.",
 // Display Version Number
 document.getElementById("version").innerHTML = _CONFIG.version;
 
+// Create Achievment Obj Array
+var _ACHIEVEMENTS = [{
+						Name: "Modern Dieter",
+						Desc: "Last a minute without eating any food.",
+						Src: "",
+						Progress: 0,
+						Total: 60
+					},{
+						Name: "Super Buffet",
+						Desc: "Ate one hundred food pellets and became a Super Worm.",
+						Src: "",
+						Progress: 0,
+						Total: 1
+					},{
+						Name: "That\'s what she said",
+						Desc: "Last five minutes while playing hard.",
+						Src: "",
+						Progress: 0,
+						Total: 300
+					},{
+						Name: "Welcome to the 1%",
+						Desc: "Reach one million points.",
+						Src: "",
+						Progress: 0,
+						Total: 1000000
+					},{
+						Name: "Rainbow Guy",
+						Desc: "Played with five different themes.",
+						Src: "",
+						Progress: 0,
+						Total: 5
+					},{
+						Name: "New Fish",
+						Desc: "Died in the easiest mode.",
+						Src: "",
+						Progress: 0,
+						Total: 1
+					},{
+						Name: "Misophonia",
+						Desc: "Muted the game music.",
+						Src: "",
+						Progress: 0,
+						Total: 1
+					},{
+						Name: "...",
+						Desc: "Paused the game and took a breather.",
+						Src: "",
+						Progress: 0,
+						Total: 1
+					},{
+						Name: "You just can\'t stop!",
+						Desc: "Used a Super Worm Power Up.",
+						Src: "",
+						Progress: 0,
+						Total: 1
+					},{
+						Name: "Living on the Edge",
+						Desc: "Grind the outter walls.",
+						Src: "",
+						Progress: 0,
+						Total: 108
+					},{
+						Name: "Master Race",
+						Desc: "Used WASD to move around instead of the arrow keys.",
+						Src: "",
+						Progress: 0,
+						Total: 1
+					}];
+
 // Game start
 function init(){
 
     // Create Worm and Food
     createWorm();
 	createFood(-1);
+
+	// Render Walls based off difficulty
+	if(_PLAYER.difficulty == "medium")
+		createMediumWalls();
+	if(_PLAYER.difficulty == "hard")
+		createHardWalls();
 
 	// Start Game Timer
 	_CONFIG.timer = setInterval(function(){
@@ -117,8 +191,7 @@ function gameOver(){
 	resetConfig();
 	_WORM  = [];
 	_FOOD  = [];
-	_WALL1 = [];
-	_WALL2 = [];
+	_WALLS = [];
 
 	// Display Menu
 	displayStartMenu();
@@ -132,6 +205,7 @@ function displayStartMenu(){
     calcMult(0)
     changeTheme();
     loadThemes();
+    loadAchievements();
     printWormFact();
 	paintBackground();
     streak(_CONFIG.streakIncrement);
@@ -206,7 +280,7 @@ function resetPlayer(){
 // Resets Modifiable Config Settings
 function resetConfig(){
 
-	_CONFIG.wormReduction = 0.3;
+	_CONFIG.wormReduction = 0.4;
 	_CONFIG.multMessage = "Get Small!";
 	_CONFIG.wormGrowth = 0;
 	_CONFIG.wormLength = 5;
@@ -216,6 +290,7 @@ function resetConfig(){
 
 }
 
+// Loads the Dropdown with the Available Themes
 function loadThemes(){
 
 	// Get Color Dropdown
@@ -236,6 +311,28 @@ function loadThemes(){
 		themeOption = document.createElement("option");
 		themeOption.innerHTML = _THEMES[j][0];
 		colorDropdown.appendChild(themeOption);
+	}
+}
+
+function loadAchievements(){
+	var table = document.getElementById("achievementTable");
+	// Clear table
+	for(var j = 0; j < table.rows.length; ++j)
+		table.deleteRow(j);
+
+	for(var i = 0; i < _ACHIEVEMENTS.length; ++i){
+		var newRow = table.insertRow(i);
+		var name = newRow.insertCell(0);
+		var desc = newRow.insertCell(1);
+
+		var progressPercent = Math.round((_ACHIEVEMENTS[i].Progress/_ACHIEVEMENTS[i].Total)*100);
+		var progressDiv = "<div class=\"progress\"><div id=\"achievement"+i+"\" class=\"progress-bar progress-bar-info progress-bar-striped active\" style=\"width: "+progressPercent+"%\"></div></div>"
+
+		name.innerHTML = _ACHIEVEMENTS[i].Name;
+		if(_ACHIEVEMENTS[i].Progress >= _ACHIEVEMENTS[i].Total)
+			desc.innerHTML = _ACHIEVEMENTS[i].Desc;
+		else
+			desc.innerHTML = "Unlock secret achievement to gain a new theme!"+progressDiv;
 	}
 }
 
@@ -262,13 +359,13 @@ function beginRestartCountdown(){
 
 // Creates the Worm Body
 function createWorm(){
-	for (var i = _CONFIG.wormLength -1; i >= 0; i--) {
+	for (var i = _CONFIG.wormLength -1; i >= 0; i--)
 		_WORM.push({
 			x: Math.round((w/2)/_CONFIG.wormWidth),
 			y: i
 		});
-	}
 }
+
 
 // Create food for worm
 function createFood(num) {
@@ -297,7 +394,7 @@ function createFoodLocation(index){
 		var foodY_pos = Math.round(Math.random() * (h - _CONFIG.wormWidth) / _CONFIG.wormWidth);
 
 		// Check that Food isn't on top of anything
-		if(checkCollision(foodX_pos, foodY_pos, _WORM) || checkCollision(foodX_pos, foodY_pos, _WALL1) || checkCollision(foodX_pos, foodY_pos, _WALL2))
+		if(checkCollision(foodX_pos, foodY_pos, _WORM) || checkCollision(foodX_pos, foodY_pos, _WALLS))
 			invalidLocation = true;
 	}
 
@@ -309,204 +406,227 @@ function createFoodLocation(index){
 
 }
 
+// Check to see that the worm is in a valid location
+function checkForValidLocation(x_pos, y_pos){
+	if(x_pos == -1 || x_pos == w / _CONFIG.wormWidth ||
+		 y_pos == -1 || y_pos == h / _CONFIG.wormWidth || 
+		 checkCollision(x_pos, y_pos, _WORM) || 
+		 checkCollision(x_pos, y_pos, _WALLS))
+		return false;
+
+	return true;
+}
+
+// Paints each part of the game
 function paint(){
 
 	// Paint Canvas
 	paintBackground();
 
 	// Finds the head of the worm
-	var new_xPos = _WORM[0].x;
-	var new_yPos = _WORM[0].y;
+	var head_xPos = _WORM[0].x;
+	var head_yPos = _WORM[0].y;
 
 	// Direction the Worm is moving
 	switch(_PLAYER.direction){
 		case "right":
-			new_xPos++;
+			head_xPos++;
 			break;
 		case "left":
-			new_xPos--;
+			head_xPos--;
 			break;
 		case "up":
-			new_yPos--;
+			head_yPos--;
 			break;
 		case "down":
-			new_yPos++;
+			head_yPos++;
 			break;
 	}
 
 	// Check for failure
-	if(new_xPos == -1 || new_xPos == w / _CONFIG.wormWidth || new_yPos == -1 || new_yPos == h / _CONFIG.wormWidth || checkCollision(new_xPos, new_yPos, _WORM) || checkCollision(new_xPos, new_yPos, _WALL1) || checkCollision(new_xPos, new_yPos, _WALL2)){
-		// Print Scores and End Game
+	if(!checkForValidLocation(head_xPos, head_yPos)){
 		printScores();
 		gameOver();
 		return;
-	}// if
-
-	for(i = 0; i < _FOOD.length; ++i){
-			if (new_xPos == _FOOD[i].x && new_yPos == _FOOD[i].y) {
-	           var tail; 
-	           var totalWormKilled = _WORM.length*_CONFIG.wormReduction;
-	           for(var j = 0; j < (_WORM.length*_CONFIG.wormReduction); ++j){
-	           		tail = _WORM.pop(); 
-	        	}
-		            tail.x = new_xPos;
-		            tail.y = new_yPos;
-
-		            _PLAYER.score += parseInt((totalWormKilled*_PLAYER.mult)*_PLAYER.difficultyBonus);
-		            calcMult(_CONFIG.multIncrement);
-		            createFood(i);
-		            streak(_CONFIG.streakIncrement);
-			}else{
-			var tail = {
-				x: new_xPos,
-				y: new_yPos
-			};
-			if(_CONFIG.wormGrowth > _CONFIG.wormGrowthLimit){
-				tail = _WORM.pop();
-
-				tail.x = new_xPos;
-				tail.y = new_yPos;
-				_CONFIG.wormGrowth = 0;
-			}// if
-			else{
-				_CONFIG.wormGrowth++;
-
-				tail.x = new_xPos;
-				tail.y = new_yPos;
-			}// else
-		}// else
-	}// for
-
-	_WORM.unshift(tail);
-
-	//Paints the worm cells
-	for (var i = 0; i < _WORM.length; i++) {
-    	paintCell(_WORM[i].x, _WORM[i].y, "c");
 	}
 
-	//Paints each food in the array
-	for(var i = 0; i <_FOOD.length; ++i){
-		paintCell(_FOOD[i].x, _FOOD[i].y, "f");
-	}
+	// Grow worm or reduce it based off if it eats food
+	updateWorm(head_xPos, head_yPos);
 
+	//Paints the worm, food and wall cells
+	paintCell(_WORM,  _CONFIG.wormColor);
+	paintCell(_FOOD,  _CONFIG.foodColor);
+	paintCell(_WALLS, _CONFIG.wallColor);
+
+	// Update Scores on Screen
 	printScores();
 
-	// Render Walls based off difficulty
-	if(_PLAYER.difficulty == "medium")
-		createMediumWalls();
-	if(_PLAYER.difficulty == "hard")
-		createHardWalls();
+}
 
+// Update the worm size based off if it is eating food or not
+function updateWorm(x_pos, y_pos){
+
+	// Get the Head Position
+	var head = {
+			x: x_pos,
+			y: y_pos	
+		};
+
+	// Check to see if Worm ate Food then update worm and food
+	for(i = 0; i < _FOOD.length; ++i)
+		if (x_pos == _FOOD[i].x && y_pos == _FOOD[i].y) {
+
+           var totalWormKilled = _WORM.length*_CONFIG.wormReduction;
+
+           for(var j = 0; j < (_WORM.length*_CONFIG.wormReduction); ++j)
+           		head = _WORM.pop(); 
+
+            head.x = x_pos;
+            head.y = y_pos;
+
+            _PLAYER.score += Math.round((totalWormKilled*_PLAYER.mult)*_PLAYER.difficultyBonus);
+            calcMult(_CONFIG.multIncrement);
+            createFood(i);
+            streak(_CONFIG.streakIncrement);
+		}else
+			if(_CONFIG.wormGrowth > _CONFIG.wormGrowthLimit){
+				head = _WORM.pop();
+				head.x = x_pos;
+				head.y = y_pos;
+				_CONFIG.wormGrowth = 0;
+			}
+			else{
+				head.x = x_pos;
+				head.y = y_pos;
+				_CONFIG.wormGrowth++;
+			}
+
+	// Redistribute Worm Array
+	_WORM.unshift(head);
 }
 
 // Creates Walls made for Medium Difficulty
 function createMediumWalls(){
 
-	var starting_XPoint = parseInt((w/_CONFIG.wormWidth)/2)-6;
-	var reflection_XPoint = parseInt((w/_CONFIG.wormWidth)/2) + 5;
+	var starting_XPoint = Math.floor((w/_CONFIG.wormWidth)/2)-6;
+	var reflection_XPoint = Math.floor((w/_CONFIG.wormWidth)/2) + 5;
 
-	var starting_YPoint = parseInt((h/_CONFIG.wormWidth)/2)-1;
-	var reflection_YPoint = parseInt((h/_CONFIG.wormWidth)/2)-1;
+	var starting_YPoint = Math.floor((h/_CONFIG.wormWidth)/2)-1;
+	var reflection_YPoint = Math.floor((h/_CONFIG.wormWidth)/2)-1;
 
-	var maxWallPerSection = 5;
+	var maxWallPerSection = 6;
 
-	for(var j = 0; j <= maxWallPerSection; ++j){
+	/*
+			Medium Walls:
+			   =	=
+		       =	=
+		   -----	-----
+			   =	=
+			   =	=
+	*/
+	for(var j = 0; j < maxWallPerSection; ++j){
 		// Get West walls
-		_WALL1[j + (maxWallPerSection*0)] = {
+		_WALLS[j + (maxWallPerSection*0)] = {
 			x: starting_XPoint - j,
 			y: starting_YPoint
 		};
-		_WALL2[j + (maxWallPerSection*0)] = {
+		_WALLS[j + (maxWallPerSection*1)] = {
 			x: reflection_XPoint + j,
 			y: reflection_YPoint
 		};
 
 		// Get North Walls
-		_WALL1[j + (maxWallPerSection*1)] = {
+		_WALLS[j + (maxWallPerSection*2)] = {
 			x: starting_XPoint,
 			y: starting_YPoint - j
 		};
-		_WALL2[j + (maxWallPerSection*1)] = {
+		_WALLS[j + (maxWallPerSection*3)] = {
 			x: reflection_XPoint,
 			y: reflection_YPoint - j
 		};
 
 		// Get South Walls
-		_WALL1[j + (maxWallPerSection*2)] = {
+		_WALLS[j + (maxWallPerSection*4)] = {
 			x: starting_XPoint,
 			y: starting_YPoint + j
 		};
-		_WALL2[j + (maxWallPerSection*2)] = {
+		_WALLS[j + (maxWallPerSection*5)] = {
 			x: reflection_XPoint,
 			y: reflection_YPoint + j
 		};
 	}
 	
-
-	for(var i = 0; i < _WALL1.length; ++i){
-		paintCell(_WALL1[i].x, _WALL1[i].y, "w");
-		paintCell(_WALL2[i].x, _WALL2[i].y, "w");
-	}
+	// Paint Walls
+	paintCell(_WALLS, _CONFIG.wallColor);
 }
 
 // Creates Walls made for Hard Difficulty
 function createHardWalls(){
 
-	var starting_XPoint = parseInt((w/_CONFIG.wormWidth)/3)+1;
-	var reflection_XPoint = parseInt((w/_CONFIG.wormWidth)/3)*2-2;
+	var starting_XPoint = Math.floor((w/_CONFIG.wormWidth)/3)+1;
+	var reflection_XPoint = Math.floor((w/_CONFIG.wormWidth)/3)*2-2;
 
-	var starting_YPoint = parseInt((h/_CONFIG.wormWidth)/3)+1;
-	var reflection_YPoint = parseInt((h/_CONFIG.wormWidth)/3)+1;
+	var starting_YPoint = Math.floor((h/_CONFIG.wormWidth)/3)+1;
+	var reflection_YPoint = Math.floor((h/_CONFIG.wormWidth)/3)+1;
 
 	var maxWallPerSection = 5;
 
+	/*
+		   Hard Walls:
+			=		=
+			=		=
+		-----		-----
+
+		-----		-----
+			=		=
+			=		=
+
+	*/
 	for(var j = 0; j < maxWallPerSection; ++j){
 		// Get NorthWest Wall
-		_WALL1[j + (maxWallPerSection*0)] = {
+		_WALLS[j + (maxWallPerSection*0)] = {
 			x: starting_XPoint - j,
 			y: starting_YPoint
 		};
-		_WALL1[j + (maxWallPerSection*1)] = {
+		_WALLS[j + (maxWallPerSection*1)] = {
 			x: starting_XPoint,
 			y: starting_YPoint - j
 		};
 
 		// Get NorthEast Wall
-		_WALL2[j + (maxWallPerSection*0)] = {
+		_WALLS[j + (maxWallPerSection*2)] = {
 			x: reflection_XPoint + j,
 			y: reflection_YPoint
 		};
-		_WALL2[j + (maxWallPerSection*1)] = {
+		_WALLS[j + (maxWallPerSection*3)] = {
 			x: reflection_XPoint,
 			y: reflection_YPoint - j
 		};
 
 		// SouthWest Wall
-		_WALL1[j + (maxWallPerSection*2)] = {
+		_WALLS[j + (maxWallPerSection*4)] = {
 			x: starting_XPoint - j,
 			y: (starting_YPoint*2-2)
 		};
-		_WALL1[j + (maxWallPerSection*3)] = {
+		_WALLS[j + (maxWallPerSection*5)] = {
 			x: starting_XPoint,
 			y: (starting_YPoint*2-2) + j
 		};
 
 		// SouthEast Wall
-		_WALL2[j + (maxWallPerSection*2)] = {
+		_WALLS[j + (maxWallPerSection*6)] = {
 			x: reflection_XPoint + j,
 			y: (reflection_YPoint*2-2)
 		};
-		_WALL2[j + (maxWallPerSection*3)] = {
+		_WALLS[j + (maxWallPerSection*7)] = {
 			x: reflection_XPoint,
 			y: (reflection_YPoint*2-2) + j
 		};
 
 	}
 
-	for(var i = 0; i < _WALL1.length; ++i){
-		paintCell(_WALL1[i].x, _WALL1[i].y, "w");
-		paintCell(_WALL2[i].x, _WALL2[i].y, "w");
-	}
+	// Paint Walls
+	paintCell(_WALLS, _CONFIG.wallColor);
 }
 
 // Paints the Background of the Canvas
@@ -518,18 +638,14 @@ function paintBackground(){
 }
 
 //paints the cells of the worm and food
-function paintCell(x, y, z){
-	if(z == "f")
-		ctx.fillStyle = _CONFIG.foodColor;
-	else if(z == "w")
-		ctx.fillStyle = _CONFIG.wallColor;
-	else
-		ctx.fillStyle = _CONFIG.wormColor;
-
+function paintCell(gameArray, color){
 	// Paint the cell
-	ctx.fillRect(x * _CONFIG.wormWidth, y * _CONFIG.wormWidth, _CONFIG.wormWidth, _CONFIG.wormWidth);
-	ctx.strokeStyle = "black";
-	ctx.strokeRect(x * _CONFIG.wormWidth, y * _CONFIG.wormWidth, _CONFIG.wormWidth, _CONFIG.wormWidth);
+	for(var i = 0; i < gameArray.length; ++i){
+		ctx.fillStyle = color;
+		ctx.fillRect(gameArray[i].x * _CONFIG.wormWidth, gameArray[i].y * _CONFIG.wormWidth, _CONFIG.wormWidth, _CONFIG.wormWidth);
+		ctx.strokeStyle = "black";
+		ctx.strokeRect(gameArray[i].x * _CONFIG.wormWidth, gameArray[i].y * _CONFIG.wormWidth, _CONFIG.wormWidth, _CONFIG.wormWidth);
+	}
 }
 
 //Check to see if the worm has touched a wall or itself
@@ -538,7 +654,7 @@ function checkCollision(x, y, array){
     	if (array[i].x == x && array[i].y == y) return true;
 
 	return false;
-}// checkCollision()
+}
 
 //Calculates the multiplier earned by the player
 function calcMult(scoreAddition){
@@ -614,7 +730,7 @@ function streakNotification(id, msg, volume){
 					document.getElementById("streak").innerHTML = "Press SPACE!"
 				}, 6000);
 	}
-}// streakNotification()
+}
 
 // Prints a new Worm Fact
 function printWormFact(){
@@ -667,30 +783,26 @@ function onDifficultyClick(e){
 	// Change Game Settings
 	switch(e.target.id){
 		case "easy":
-			_CONFIG.foodAmount = 5;
-			_CONFIG.speed = 85;
-			_PLAYER.difficulty = "easy";
-			_PLAYER.difficultyBonus = 1;
+			changeDifficultySettings(5, 85, "easy", 1);
 			break;
 		case "medium":
-			_CONFIG.foodAmount = 3;
-			_CONFIG.speed = 70;
-			_PLAYER.difficulty = "medium";
-			_PLAYER.difficultyBonus = 5;
+			changeDifficultySettings(3, 70, "medium", 5);
 			break;
 		case "hard":
-			_CONFIG.foodAmount = 2;
-			_CONFIG.speed = 60;
-			_PLAYER.difficulty = "hard";
-			_PLAYER.difficultyBonus = 10;
+			changeDifficultySettings(2, 60, "hard", 10);
 			break;
 		default:
-			_CONFIG.foodAmount = 3;
-			_CONFIG.speed = 70;
-			_PLAYER.difficulty = "medium";
-			_PLAYER.difficultyBonus = 5;
+			changeDifficultySettings(3, 70, "medium", 5);
 			break;
 	}
+}
+
+// Changes the difficulty settings of the game
+function changeDifficultySettings(food, speed, difficulty, bonus){
+	_CONFIG.foodAmount = food;
+	_CONFIG.speed = speed;
+	_PLAYER.difficulty = difficulty;
+	_PLAYER.difficultyBonus = bonus;
 }
 
 // Update the difficulty button styles 
@@ -701,72 +813,82 @@ function UpdateDifficultyButtonStyles(e){
 	document.getElementById("medium").removeAttribute("style");
 	document.getElementById("hard").removeAttribute("style");
 
-	// Give Opacity Styles to make buttons look unactive
-	document.getElementById("easy").style.opacity = 0.5;
-	document.getElementById("medium").style.opacity = 0.5;
-	document.getElementById("hard").style.opacity = 0.5;
-
 	// Remove opacity, add width and give game font for button clicked
 	document.getElementById(e.target.id).removeAttribute("style");
 	document.getElementById(e.target.id).style.fontFamily = "Bangers";
-	document.getElementById(e.target.id).style.width = "200px";
+	document.getElementById(e.target.id).style.width = "170px";
+}
+
+// Gives the player a power up to reduce worm size more with each food pellet
+function powerUp(){
+
+	// Alternate Colors
+	var currentColor = _CONFIG.foodColor;
+	var colorChange = setInterval(function(){
+				    		if(_CONFIG.foodColor == currentColor)
+				    			_CONFIG.foodColor = "red";
+				    		else _CONFIG.foodColor = currentColor;}
+				    	, 100);
+	_CONFIG.foodColor = currentColor;
+	_CONFIG.wormReduction = 3;
+	_CONFIG.theme.pause();
+
+	// Start Power Up Song from Beginning 
+	if(!_CONFIG.mute){
+		var powerUpSong = document.getElementById("cant")
+		powerUpSong.currentTime = 0;
+		powerUpSong.play();
+	}
+	
+	// Return to normal after 5 seconds
+	setTimeout(function(){
+		document.getElementById("streak").innerHTML = "Get Small!";
+		if(!_CONFIG.mute){
+			document.getElementById("cant").pause();
+		}
+
+		changeTheme();
+		_CONFIG.multMessage = "Get Small!";
+		_CONFIG.wormReduction = 0.4;
+		_CONFIG.theme.play();
+		clearInterval(colorChange);
+	}, 5000);
+	
+	// Remove Player Power Up
+	_PLAYER.power = false;
 }
 
 // Keyboard controls
 $(document).keydown(function(e) {
     var key = e.which;
     
+    // Left
     if ((key == 37 || key == 65) && _PLAYER.direction != "right" && !$('#StartMenu').hasClass('in')) 
     	_PLAYER.direction = "left";
+    // Up
     else if ((key == 38 || key == 87) && _PLAYER.direction != "down" && !$('#StartMenu').hasClass('in')) 
     	_PLAYER.direction = "up";
+    // Right
     else if ((key == 39 || key == 68) && _PLAYER.direction != "left" && !$('#StartMenu').hasClass('in')) 
     	_PLAYER.direction = "right";
+    // Down
     else if ((key == 40 || key == 83) && _PLAYER.direction != "up" && !$('#StartMenu').hasClass('in')) 
     	_PLAYER.direction = "down";
-    else if(key == 32 && _PLAYER.power) {
-    	// Alternate Colors
-    	var colorChange = setInterval(function(){
-					    		if(_CONFIG.foodColor == "#06f")
-					    			_CONFIG.foodColor = "red";
-					    		else _CONFIG.foodColor = "#06f";}
-					    	, 100);
-    	
-    	_CONFIG.wormReduction = 3;
-    	_CONFIG.theme.pause();
-
-		// Start Power Up Song from Beginning 
-		if(!_CONFIG.mute){
-			var powerUpSong = document.getElementById("cant")
-			powerUpSong.currentTime = 0;
-			powerUpSong.play();
-		}
-    	
-    	setTimeout(function(){
-    		document.getElementById("streak").innerHTML = "Get Small!";
-    		if(!_CONFIG.mute){
-    			document.getElementById("cant").pause();
-    		}
-
-    		changeTheme();
-			_CONFIG.multMessage = "Get Small!";
-    		_CONFIG.wormReduction = 0.3;
-			_CONFIG.theme.play();
-    		clearInterval(colorChange);
-    	}, 5000);
-    	
-    	// Remove Player Power Up
-    	_PLAYER.power = false;
-    }// Space Bar Key Press
+    // Space
+    else if(key == 32 && _PLAYER.power)
+    	powerUp();
+    // ESC
     else if(key == 27){
     	// Pause
     	if(_CONFIG.speed > 0 && !_CONFIG.pause)
     		pauseGame();
 	    // Play
-	    else if(_CONFIG.speed == 0)
+	    else if(_CONFIG.pause)
 	    	resumeGame();
 	    
-    }else if(key == 13){
+    }
+    // Enter
+    else if(key == 13){
     	if($('#StartMenu').hasClass('in')){
 			$('#StartMenu').modal('hide');
     		if(_CONFIG.pause)
