@@ -176,6 +176,15 @@ footer a:hover {
 		width: 90px !important;
 		padding: 2px;
 }
+#gameEditor{
+	margin: 20px auto;
+}
+#editorCellsLeft{
+	color: #06F;
+	font-weight: bold;
+	font-family: 'Bangers';
+	font-size: 1.2em;
+}
 #timeText{
 	text-align: left;
 }

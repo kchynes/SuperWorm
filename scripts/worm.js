@@ -1,176 +1,27 @@
-// Canvas Variables
-var canvas = document.getElementById("canvas");
-var ctx = canvas.getContext("2d");
-var w = canvas.width;
-var h = canvas.height;
-
-// Worm Body
-var _WORM = []; 
-var _FOOD = [];
-
-// Walls
-var _WALLS = [];
-
-// Theme Colors ordered by Worm Color, Food Color, Background Color, and Name
-var _THEMES	=  [["Basic", "#ecf0f1", "#2ecc71", "#000000", "#3498db"], 
-				["Bone", "#cbcad0", "#81c142", "#0f7d0d", "#7f8c8d"], 
-				["Gears", "#e91a0a", "#ffffff", "#000000", "#333333"], 
-				["Halo", "#505e82", "#a2b7dc", "#13263e", "#34495e"], 
-				["Hotline", "#FFFFFF", "#DB0A5B", "#1abc9c", "#fbc5a3"], 
-				["Inverse", "#e74c3c", "#2980b9", "#FFFFFF", "#333333"], 
-				["Jibbles", "#FFFFFF", "#1abc9c", "#8e44ad", "#333333"], 
-				["Legend", "#e91a0a", "#331f82", "#816830", "#333333"], 
-				["Retro", "#000000", "#999999", "#FFFFFF", "#333333"],
-				["Station", "#ffffff", "#0072bb", "#222b6c", "#333333"], 
-				["Sunset", "#e67e22", "#27ae60", "#2980b9", "#333333"], 
-				["Sunrise", "#d35400", "#f1c40f", "#f39c12", "#666666"]];
-
-// Config Object
-var _CONFIG = {
-	wormWidth: 25,
-	wormLength: 5,
-	wormReduction: 0.4,
-	wormGrowth: 0,
-	wormGrowthLimit: 5,
-	wormColor: _THEMES[0][1],
-	foodAmount: 3,
-	foodColor: _THEMES[0][2],
-	bgColor: _THEMES[0][3],
-	wallColor: _THEMES[0][4],
-	multIncrement: 5,
-	multMessage: "GET SMALL!",
-	streakIncrement: 1,
-	speed: 70,
-	seconds: 0,
-	pause: false,
-	mute: false,
-	timer: null,
-	game: null,
-	theme: document.getElementById("themeSong"),
-	version: "1.7.1"
-}
-
-// Player Object
-var _PLAYER = {
-	score: 0,
-	highScore: 0,
-	power: false,
-	mult: 1,
-	streakCount: 0,
-	direction: "down",
-	difficulty: "medium",
-	difficultyBonus: 5
-}
-
-// Create Worm Fact Array
-var _FACT = ["A worm has no arms, but has elbows.", 
-			"In one acre of land, there can be more than a million earthworms.",
-			"Worms can eat their weight each day, but will purge to maintain their figure.", 
-			"This game has nothing to do with worms, beside the name.", 
-			"A worm is like a snake, but weirder.", 
-			"Worms feed off the aura of dead pandas.", 
-			"60% of a worms body composition is actually horse DNA.", 
-			"In Soviet Russia worms are domesticated pets.",
-			"Worms have a raging addiction to Oreo cookies.",
-			"A worm insurance is known for its dental care.",
-			"In latin, worm means \"To steal thy neighbors poncho\"",
-			"Wormstradomus predicts that global composting will reach an all time high by year 2020.",
-			"Worm, proudly sponsored by John Deere equipment - \"If it ain't worm, it ain't Deere.\"",
-			"This theme song brought to you by the wonderful Sycamore Drive - City Sounds!",
-			"A worm will chew its nails when it's nervous.",
-			"Typically a worm loses job interviews 9 times out of 10 because of the economy.",
-			"If you place a worm on top of a cat, it will most likely die.",
-			"Worms are notorious for coding themselves into a rip off Snake game.",
-			"Worms can be expensive... but they are not cheap either considering..."];
-
 // Display Version Number
 document.getElementById("version").innerHTML = _CONFIG.version;
-
-// Create Achievment Obj Array
-var _ACHIEVEMENTS = [{
-						Name: "Modern Dieter",
-						Desc: "Last a minute without eating any food.",
-						Src: "",
-						Progress: 0,
-						Total: 60
-					},{
-						Name: "Super Buffet",
-						Desc: "Ate one hundred food pellets and became a Super Worm.",
-						Src: "",
-						Progress: 0,
-						Total: 1
-					},{
-						Name: "That\'s what she said",
-						Desc: "Last five minutes while playing hard.",
-						Src: "",
-						Progress: 0,
-						Total: 300
-					},{
-						Name: "Welcome to the 1%",
-						Desc: "Reach one million points.",
-						Src: "",
-						Progress: 0,
-						Total: 1000000
-					},{
-						Name: "Rainbow Guy",
-						Desc: "Played with five different themes.",
-						Src: "",
-						Progress: 0,
-						Total: 5
-					},{
-						Name: "New Fish",
-						Desc: "Died in the easiest mode.",
-						Src: "",
-						Progress: 0,
-						Total: 1
-					},{
-						Name: "Misophonia",
-						Desc: "Muted the game music.",
-						Src: "",
-						Progress: 0,
-						Total: 1
-					},{
-						Name: "...",
-						Desc: "Paused the game and took a breather.",
-						Src: "",
-						Progress: 0,
-						Total: 1
-					},{
-						Name: "You just can\'t stop!",
-						Desc: "Used a Super Worm Power Up.",
-						Src: "",
-						Progress: 0,
-						Total: 1
-					},{
-						Name: "Living on the Edge",
-						Desc: "Grind the outter walls.",
-						Src: "",
-						Progress: 0,
-						Total: 108
-					},{
-						Name: "Master Race",
-						Desc: "Used WASD to move around instead of the arrow keys.",
-						Src: "",
-						Progress: 0,
-						Total: 1
-					}];
 
 // Game start
 function init(){
 
-    // Create Worm and Food
-    createWorm();
-	createFood(-1);
-
 	// Render Walls based off difficulty
+	if(_PLAYER.difficulty == "easy")
+		createCustomWalls();
 	if(_PLAYER.difficulty == "medium")
 		createMediumWalls();
 	if(_PLAYER.difficulty == "hard")
 		createHardWalls();
 
+    // Create Worm and Food
+    createWorm();
+	createFood(-1);
+
 	// Start Game Timer
 	_CONFIG.timer = setInterval(function(){
 					_CONFIG.seconds++;
+					if(_PLAYER.score == 0)
+						// Update Achievement
+						updateAchievementProgress(0, _CONFIG.seconds);
 					document.getElementById("timeText").innerHTML = _CONFIG.seconds;
 				}, 1000);
 
@@ -204,8 +55,8 @@ function displayStartMenu(){
 	// Render Background and initialize Streak, Multiplier, Worm Color and Worm Facts Worm Fact
     calcMult(0)
     changeTheme();
-    loadThemes();
     loadAchievements();
+    loadThemes();
     printWormFact();
 	paintBackground();
     streak(_CONFIG.streakIncrement);
@@ -217,6 +68,9 @@ function displayStartMenu(){
 
 // Pauses the Game and Displays the Start Screen
 function pauseGame(){
+
+	// Update Achievement
+	incrementAchievementProgress(7, 1);
 
 	// Open Start Menu
 	$('#StartMenu').modal({backdrop: 'static'});
@@ -317,8 +171,9 @@ function loadThemes(){
 function loadAchievements(){
 	var table = document.getElementById("achievementTable");
 	// Clear table
-	for(var j = 0; j < table.rows.length; ++j)
-		table.deleteRow(j);
+	var rowSize = table.rows.length;
+	for(var j = 0; j < rowSize; ++j)
+		table.deleteRow(0);
 
 	for(var i = 0; i < _ACHIEVEMENTS.length; ++i){
 		var newRow = table.insertRow(i);
@@ -329,11 +184,24 @@ function loadAchievements(){
 		var progressDiv = "<div class=\"progress\"><div id=\"achievement"+i+"\" class=\"progress-bar progress-bar-info progress-bar-striped active\" style=\"width: "+progressPercent+"%\"></div></div>"
 
 		name.innerHTML = _ACHIEVEMENTS[i].Name;
-		if(_ACHIEVEMENTS[i].Progress >= _ACHIEVEMENTS[i].Total)
+		if(_ACHIEVEMENTS[i].Progress >= _ACHIEVEMENTS[i].Total){
 			desc.innerHTML = _ACHIEVEMENTS[i].Desc;
+			addSecretTheme(i);
+		}
 		else
 			desc.innerHTML = "Unlock secret achievement to gain a new theme!"+progressDiv;
 	}
+}
+
+function addSecretTheme(id){
+	var themeAdded = false;
+	for(var i = 0; i < _THEMES.length; ++i){
+		if(_THEMES[i][0] == _SECRET_THEMES[id][0])
+			themeAdded = true;
+	}
+
+	if(!themeAdded)
+		_THEMES.push(_SECRET_THEMES[id]);
 }
 
 // SuperWorm 1.4 - Used to reset the game with a countdown from 3
@@ -375,8 +243,9 @@ function createFood(num) {
 			for(var i = 0; i < _CONFIG.foodAmount; ++i)
 				createFoodLocation(i);
 		// Create a new Food Pellet
-		else
+		else{
 			createFoodLocation(num);
+		}
 }
 
 // Finds a valid X and Y coordinate for a Food Pellet
@@ -445,6 +314,14 @@ function paint(){
 
 	// Check for failure
 	if(!checkForValidLocation(head_xPos, head_yPos)){
+
+		if(_PLAYER.difficulty == "easy")
+			// Update Achievement
+			updateAchievementProgress(5, 1);
+		if(_PLAYER.difficulty == "hard")
+			// Update Achievement
+			UpdateAchievementProgress(2, _CONFIG.seconds);
+
 		printScores();
 		gameOver();
 		return;
@@ -472,12 +349,12 @@ function updateWorm(x_pos, y_pos){
 			y: y_pos	
 		};
 
+	var ateFood = false;
 	// Check to see if Worm ate Food then update worm and food
 	for(i = 0; i < _FOOD.length; ++i)
 		if (x_pos == _FOOD[i].x && y_pos == _FOOD[i].y) {
-
            var totalWormKilled = _WORM.length*_CONFIG.wormReduction;
-
+           ateFood = true;
            for(var j = 0; j < (_WORM.length*_CONFIG.wormReduction); ++j)
            		head = _WORM.pop(); 
 
@@ -501,8 +378,26 @@ function updateWorm(x_pos, y_pos){
 				_CONFIG.wormGrowth++;
 			}
 
+	if(ateFood)
+		// Update Achievement
+		incrementAchievementProgress(1, 1);
+
 	// Redistribute Worm Array
 	_WORM.unshift(head);
+}
+
+// Creates Walls made from the Game Editor
+function createCustomWalls(){
+
+	// Re-save Editor Walls for game restart
+	saveCustomWalls();
+	if(_WALLS.length > 0){
+		// Paint Walls
+		paintCell(_WALLS, _CONFIG.wallColor);
+		
+		// Update Achievement
+		incrementAchievementProgress(11, 1);
+	}
 }
 
 // Creates Walls made for Medium Difficulty
@@ -678,7 +573,10 @@ function printScores(){
 	ctx.textAlign = "left";
 	ctx.fillText("Score: "+_PLAYER.score, 5, 17);
 	ctx.textAlign = "right";
-	ctx.fillText("Highscore: "+_PLAYER.highScore, w-5, 17);
+	ctx.fillText("Highscore: "+_PLAYER.highScore, w-5, 17);	
+
+	// Update Achievement
+	updateAchievementProgress(3, _PLAYER.highScore);
 
 }
 
@@ -753,6 +651,9 @@ function changeTheme(){
 			_CONFIG.bgColor   = _THEMES[0][3];
 			_CONFIG.wallColor = _THEMES[0][4];
 		}
+
+	// Update Achievement
+	incrementAchievementProgress(4, 1);
 }
 
 // Removes focus from dropdown focus remains on game
@@ -771,6 +672,9 @@ function onVolumeControlClick(){
 		_CONFIG.mute = true;
 		_CONFIG.theme.volume = 0;
 		document.getElementById("volumeControl").src = "./assets/volume_off.png";
+
+		// Update Achievement
+		incrementAchievementProgress(6, 1);
 	}
 }
 
@@ -856,6 +760,9 @@ function powerUp(){
 	
 	// Remove Player Power Up
 	_PLAYER.power = false;
+
+	// Update Achievement
+	incrementAchievementProgress(8, 1);
 }
 
 // Keyboard controls
@@ -897,4 +804,15 @@ $(document).keydown(function(e) {
     			init();
     	}
     }
+
+
+    // Update Achievement
+    if(key == 65)
+    	incrementAchievementProgress(10, 1);
+    if(key == 87)
+    	incrementAchievementProgress(10, 1);
+    if(key == 68)
+    	incrementAchievementProgress(10, 1);
+    if(key == 83)
+    	incrementAchievementProgress(10, 1);
 })
