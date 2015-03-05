@@ -176,6 +176,8 @@ function loadThemes(){
 		themeOption.innerHTML = _THEMES[j][0];
 		colorDropdown.appendChild(themeOption);
 	}
+    
+    colorDropdown.selectedIndex = _CONFIG.colorIndex+1;
 }
 
 function loadAchievements(){
@@ -650,7 +652,7 @@ function printWormFact(){
 
 // Change the Game Theme
 function changeTheme(){
-		var colorIndex = document.getElementById("wormColor").selectedIndex-1;
+		var colorIndex = _CONFIG.colorIndex;
 		if(colorIndex >= 0){
 			_CONFIG.wormColor = _THEMES[colorIndex][1];
 			_CONFIG.foodColor = _THEMES[colorIndex][2];
@@ -670,6 +672,7 @@ function changeTheme(){
 
 // Removes focus from dropdown focus remains on game
 function onWormColorChange(){
+    _CONFIG.colorIndex = document.getElementById("wormColor").selectedIndex-1;
 	changeTheme();
 	document.getElementById("wormColor").blur();
 }

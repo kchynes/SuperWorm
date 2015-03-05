@@ -65,6 +65,7 @@ var _CONFIG = {
 	timer: null,
 	game: null,
 	theme: document.getElementById("themeSong"),
+    colorIndex: 0,
 	version: "1.8.0"
 }
 
