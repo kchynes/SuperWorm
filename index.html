@@ -1,0 +1,136 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>Super Worm</title>
+	<link rel="stylesheet" href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" />
+	<link href='http://fonts.googleapis.com/css?family=Bangers' rel='stylesheet' type='text/css'>
+	<link rel="stylesheet" href="./styles/bootstrap-theme.css"/>
+	<link rel="stylesheet" href="./styles/bootstrap.css"/>
+	<link rel="stylesheet" href="./styles/worm.css" type="text/css"/>
+</head>
+<body onload="displayStartMenu()">
+	<!-- Royalty Free Song by Sycamore Drive check them out they're awesome!! http://freemusicarchive.org/music/sycamore_drive/ -->
+	<audio id="themeSong" autoplay loop>
+  		<source src="./assets/SycamoreDrive_Kicks.mp3" type="audio/mpeg">Your browser does not support the audio element.
+	</audio>
+	<div id="center">
+		<canvas id="canvas" width="900" height="500"></canvas>
+		<div id="time">
+			<li id="timeText">0</li>
+			<li id="streak"></li>
+			<li id="multText">x1</li>
+		</div>
+	</div>
+	<audio id="holy">
+  		<source src="./assets/HolyS.mp3" type="audio/mpeg">Your browser does not support the audio element.
+	</audio>
+	<audio id="ram">
+	  	<source src="./assets/ram.mp3" type="audio/mpeg">Your browser does not support the audio element.
+	</audio>
+	<audio id="uc">
+	  <source src="./assets/uc.mp3" type="audio/mpeg">Your browser does not support the audio element.
+	</audio>
+	<audio id="cant">
+	  <source src="./assets/cantStop.mp3" type="audio/mpeg">Your browser does not support the audio element.
+	</audio>
+
+
+	<!-- START MENU -->
+	<div class="modal fade " id="StartMenu">
+	  <div class="modal-dialog" style="width:50%;">
+	    <div class="modal-content superWormText">
+	      <div class="menuHeader centerControls">
+	        <h1 id="mainGameTitle">Super Worm</h1>
+			<img id="volumeControl" src="./assets/volume_on.png" title="Volume ON/OFF" alt="Volume ON/OFF" class="floatRight" onclick="onVolumeControlClick()" />
+			<p id="wFact"></p>
+	      </div>
+
+	      <div class="modal-body">
+
+	      <!-- Nav tabs -->
+		  <ul class="nav nav-tabs  nav-justified" role="tablist">
+		    <li role="presentation" class="active"><a href="#home" aria-controls="home" role="tab" data-toggle="tab" style="font-family:Bangers; font-size:1.5em;">Home</a></li>
+		    <li role="presentation"><a href="#achievements" aria-controls="achievements" role="tab" data-toggle="tab" style="font-family:Bangers; font-size:1.5em;">Achievements</a></li>
+		    <li role="presentation"><a href="#editor" aria-controls="editor" role="tab" data-toggle="tab" style="font-family:Bangers; font-size:1.5em;" onclick="paintEditorGrid()">Map Editor</a></li>
+		  </ul>
+
+		  <!-- Tab panes -->
+		  <div class="tab-content">
+		    <div role="tabpanel" class="tab-pane active" id="home">
+		      <div class="centerControls">
+		      		<br>
+			        <div class="btn-group btn-group-lg" role="group" aria-label="..." data-toggle="buttons">
+					  <label class="btn btn-info SuperWormBtnWidth" id="easy" onclick="onDifficultyClick(event)" style="">
+					    <input type="radio" name="options" autocomplete="off"  > Custom
+					  </label>
+					  <label class="btn btn-warning active SuperWormBtnWidth" id="medium" onclick="onDifficultyClick(event)" style="font-family:Bangers; ">
+					    <input type="radio" name="options" autocomplete="off" checked> Normal
+					  </label>
+					  <label class="btn btn-danger SuperWormBtnWidth" id="hard" onclick="onDifficultyClick(event)" style="">
+					    <input type="radio" name="options" autocomplete="off"> Hardcore
+					  </label>
+					</div>
+
+					<br/>
+					<br/>
+
+					<div class="form-inline">
+						<div class="form-group">
+							<select id="wormColor" onchange="onWormColorChange()" class="form-control superWormText" style="font-family:Bangers; font-size: 1.2em;"></select>
+						</div>
+					</div>
+				</div>
+				<br>
+				<ul>
+					<li><strong>Start/Resume:</strong> <kbd>[Enter]</kbd> from main menu.</li>
+					<li><strong>Pause:</strong> <kbd>[ESC]</kbd>.</li>
+					<li><strong>Movement:</strong> <kbd>[Arrow Keys]</kbd> or <kbd>[WASD]</kbd>.</li>
+					<li><strong>Special:</strong> <kbd>[Space]</kbd> when a streak is gained.</li>
+				</ul>
+				<div class="centerControls">
+					<hr>
+			        <button type="button" id="resumeGame" class="btn btn-success btn-lg SuperWormBtnWidth" style="font-family:Bangers;" onclick="resumeGame()" disabled="disabled">Resume</button>
+			        <button type="button" id="startGame" class="btn btn-primary btn-lg SuperWormBtnWidth" onclick="init()" data-dismiss="modal" style="font-family:Bangers;">New Game</button>
+				</div>
+		    </div>
+		    <div role="tabpanel" class="tab-pane" id="achievements" style="overflow-y:scroll; height:500px;">
+		    	<table id="achievementTable"></table>
+		    </div>
+		    <div role="tabpanel" class="tab-pane" id="editor">
+		    	<div class="centerControls">
+		    		<canvas id="gameEditor" width="450" height="250" oncontextmenu="return false;"></canvas>
+		    	</div>
+				<ul>
+					<li><strong>Draw:</strong> Click the <kbd>[Left-Mouse]</kbd></li>
+					<li><strong>Erase:</strong> Click the <kbd>[Right-Mouse]</kbd>.</li>
+					<li>You have <span id="editorCellsLeft">30</span> left.</li>
+				</ul>
+
+		    	<div class="centerControls">
+		    		<hr>
+		        	<button type="button" id="clearEditor" class="btn btn-default btn-lg SuperWormBtnWidth" style="font-family:Bangers;" onclick="clearEditor()">Clear</button>
+		        	<button type="button" id="saveEditor" class="btn btn-primary btn-lg SuperWormBtnWidth" style="font-family:Bangers;" onclick="saveCustomWalls()"><span id="saveProgress">Save</span> <span id="saveIcon" class="glyphicon glyphicon-remove-sign"></span></button>
+		        </div>
+		    </div>
+		  </div>
+	      </div>
+	    </div><!-- /.modal-content -->
+	  </div><!-- /.modal-dialog -->
+	</div><!-- /.modal -->
+
+	<footer><p>Version <span id="version"></span></p>
+			<div>Royalty Free Song <a href="http://freemusicarchive.org/music/sycamore_drive/">SycamoreDrive</a></div>
+			<div>Icons made by <a href="http://www.freepik.com" title="Freepik">Freepik</a> from <a href="http://www.flaticon.com" title="Flaticon">www.flaticon.com</a>             is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0">CC BY 3.0</a></div></footer>
+</body>
+	<!-- Load Dat Sweet JavaScript -->
+	<script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+	<script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
+	<script src="./scripts/bootstrap.js" type="text/javascript"></script>
+	<script src="./scripts/bootstrap.min.js" type="text/javascript"></script>
+	<script src="./scripts/globals.js" type="text/javascript"></script>
+	<script src="./scripts/achievements.js" type="text/javascript"></script>
+	<script src="./scripts/editor.js" type="text/javascript"></script>
+	<script src="./scripts/worm.js" type="text/javascript"></script>
+
+</html>
