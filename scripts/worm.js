@@ -44,6 +44,9 @@ function gameOver(){
 	_FOOD  = [];
 	_WALLS = [];
 
+	// Disable Controls
+	disableButtons(false);
+
 	// Display Menu
 	displayStartMenu();
 	
@@ -82,6 +85,9 @@ function pauseGame(){
 	document.getElementById("resumeGame").disabled = false;
 	document.getElementById("startGame").disabled = true;
 
+	// Disable Controls
+	disableButtons(true);
+
 	// Modifiy Config Settings
 	_CONFIG.speed = 0;
 	_CONFIG.theme.pause();
@@ -100,6 +106,9 @@ function resumeGame(){
 
 	// Hide Start Menu
 	$('#StartMenu').modal('hide');
+
+	// Disable Controls
+	disableButtons(false);
 
 	// Change Game Flags
 	document.getElementById("resumeGame").disabled = true;
@@ -141,6 +150,7 @@ function resetConfig(){
 	_CONFIG.seconds = 0;
 	_CONFIG.speed = 70;
 	_CONFIG.pause = false;
+	_CONFIG.game = null;
 
 }
 
@@ -320,7 +330,7 @@ function paint(){
 			updateAchievementProgress(5, 1);
 		if(_PLAYER.difficulty == "hard")
 			// Update Achievement
-			UpdateAchievementProgress(2, _CONFIG.seconds);
+			updateAchievementProgress(2, _CONFIG.seconds);
 
 		printScores();
 		gameOver();
@@ -390,7 +400,9 @@ function updateWorm(x_pos, y_pos){
 function createCustomWalls(){
 
 	// Re-save Editor Walls for game restart
-	saveCustomWalls();
+	if(_EDITOR.saved) saveCustomWalls();
+
+	// Paint Custom Walls if they exist
 	if(_WALLS.length > 0){
 		// Paint Walls
 		paintCell(_WALLS, _CONFIG.wallColor);
@@ -709,6 +721,21 @@ function changeDifficultySettings(food, speed, difficulty, bonus){
 	_PLAYER.difficultyBonus = bonus;
 }
 
+// Enables or Disables 
+function disableButtons(disabled){
+	if(disabled){
+		document.getElementById("easy").setAttribute("disabled", disabled);
+		document.getElementById("medium").setAttribute("disabled", disabled);
+		document.getElementById("hard").setAttribute("disabled", disabled);
+	}else{
+		document.getElementById("easy").removeAttribute("disabled");
+		document.getElementById("medium").removeAttribute("disabled");
+		document.getElementById("hard").removeAttribute("disabled");
+	}
+	document.getElementById("clearEditor").disabled = disabled;
+	document.getElementById("saveEditor").disabled  = disabled;
+}
+
 // Update the difficulty button styles 
 function UpdateDifficultyButtonStyles(e){
 
@@ -720,7 +747,6 @@ function UpdateDifficultyButtonStyles(e){
 	// Remove opacity, add width and give game font for button clicked
 	document.getElementById(e.target.id).removeAttribute("style");
 	document.getElementById(e.target.id).style.fontFamily = "Bangers";
-	document.getElementById(e.target.id).style.width = "170px";
 }
 
 // Gives the player a power up to reduce worm size more with each food pellet
@@ -786,13 +812,15 @@ $(document).keydown(function(e) {
     	powerUp();
     // ESC
     else if(key == 27){
-    	// Pause
-    	if(_CONFIG.speed > 0 && !_CONFIG.pause)
-    		pauseGame();
-	    // Play
-	    else if(_CONFIG.pause)
-	    	resumeGame();
-	    
+    	// Check to see if Game is Running
+    	if(_CONFIG.game != null){
+	    	// Pause
+	    	if(_CONFIG.speed > 0 && !_CONFIG.pause)
+	    		pauseGame();
+		    // Play
+		    else if(_CONFIG.pause)
+		    	resumeGame();
+		}
     }
     // Enter
     else if(key == 13){
