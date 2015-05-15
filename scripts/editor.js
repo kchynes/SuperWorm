@@ -1,29 +1,54 @@
 // Mouse Event Listner
-editorCanvas.addEventListener('mousedown', function(e) {
-	//editorCanvas.addEventListener('mousemove', function(){
-		var mousePos = getMousePosition(editorCanvas, e);
-		var x_pos = Math.floor(mousePos.x/_EDITOR.cellSize)*_EDITOR.cellSize;
-		var y_pos = Math.floor(mousePos.y/_EDITOR.cellSize)*_EDITOR.cellSize;
-		if(e.which == 3)
-			eraseWallCell(x_pos, y_pos);
-		else{
-			if(_EDITOR.walls.length >= _EDITOR.size)
-				_EDITOR.walls.shift();
+editorCanvas.addEventListener('mousemove', function(e) {
+	var mousePos = getMousePosition(editorCanvas, e);
+	var x_pos = Math.floor(mousePos.x/_EDITOR.cellSize)*_EDITOR.cellSize;
+	var y_pos = Math.floor(mousePos.y/_EDITOR.cellSize)*_EDITOR.cellSize;
+	if(_EDITOR.erase)
+		eraseWallCell(x_pos, y_pos);
+	else if(_EDITOR.draw){
+		if(_EDITOR.walls.length >= _EDITOR.size)
+			_EDITOR.walls.shift();
 
-			if(!checkCollision(x_pos, y_pos, _EDITOR.walls)){
-				var wall = {x: x_pos, y: y_pos};
-				_EDITOR.walls.push(wall);
-				paintEditorWalls();
-			}
+		if(!checkCollision(x_pos, y_pos, _EDITOR.walls)){
+			var wall = {x: x_pos, y: y_pos};
+			_EDITOR.walls.push(wall);
+			paintEditorWalls();
 		}
-		_EDITOR.saved = false;
-		displaySaveIcon(_EDITOR.saved);
-	//}, false);
+	}
+	_EDITOR.saved = false;
+	displaySaveIcon(_EDITOR.saved);
+}, false);
+
+// Mouse Up Event Listener
+editorCanvas.addEventListener('mousedown', function(e) {
+	var mousePos = getMousePosition(editorCanvas, e);
+	var x_pos = Math.floor(mousePos.x/_EDITOR.cellSize)*_EDITOR.cellSize;
+	var y_pos = Math.floor(mousePos.y/_EDITOR.cellSize)*_EDITOR.cellSize;
+	if(e.which == 3){
+		eraseWallCell(x_pos, y_pos);
+		_EDITOR.erase = true;
+	}else {
+
+		if(_EDITOR.walls.length >= _EDITOR.size)
+			_EDITOR.walls.shift();
+
+		if(!checkCollision(x_pos, y_pos, _EDITOR.walls)){
+			var wall = {x: x_pos, y: y_pos};
+			_EDITOR.walls.push(wall);
+			paintEditorWalls();
+		}
+
+		_EDITOR.draw = true;
+	}
+	
+	_EDITOR.saved = false;
+	displaySaveIcon(_EDITOR.saved);
 }, false);
 
 // Mouse Up Event Listener
 editorCanvas.addEventListener('mouseup', function(e) {
-	//editorCanvas.removeEventListener('mousemove', function(){}, false);
+	_EDITOR.erase = false;
+	_EDITOR.draw = false;
 }, false);
 
 function paintEditorGrid(){

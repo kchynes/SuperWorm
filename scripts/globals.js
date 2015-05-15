@@ -180,9 +180,11 @@ var _ACHIEVEMENTS = [{
 // Game Editor
 var _EDITOR = {
 				walls: [],
-				size: 30,
+				size: 50,
 				cellSize: 12.5,
 				gridColor: "#DDD",
 				cellColor: "#06C",
-				saved: false
+				saved: false,
+				draw: false,
+				erase: false
 			};
