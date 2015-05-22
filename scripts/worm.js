@@ -169,7 +169,10 @@ function loadThemes(){
 	var themeOption = document.createElement("option");
 	themeOption.innerHTML = "-- Select Theme --";
 	colorDropdown.appendChild(themeOption);
-
+	
+	//Sorts _THEMES array
+	_THEMES.sort();
+	
 	// Add Themes from Array
 	for(var j = 0; j < _THEMES.length; ++j){
 		themeOption = document.createElement("option");
