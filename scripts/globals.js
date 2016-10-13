@@ -159,7 +159,7 @@ var _ACHIEVEMENTS = [{
 						Total: 1
 					},{
 						Name: "Living on the Edge",
-						Desc: "Grind the outter walls.",
+						Desc: "Grind the outer walls.",
 						Src: "",
 						Progress: 0,
 						Total: 108
